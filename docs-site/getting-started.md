@@ -25,7 +25,7 @@ cleanup();
 
 ## What Happened
 
-Calling `tap()` creates a `Manager` instance bound to the element and registers a `TapRecognizer` on it. The Manager listens for `pointerdown`, `pointermove`, and `pointerup` events and feeds each one through the recognizer's state machine. When the state machine reaches the `RECOGNIZED` state — meaning the pointer lifted within the movement threshold and time interval — the callback fires and a `fngr:tap` CustomEvent is dispatched on the element.
+Calling `tap()` creates a `Manager` instance bound to the element and registers a `TapRecognizer` on it. The Manager listens for `pointerdown`, `pointermove`, and `pointerup` events and feeds each one through the recognizer's state machine. When the state machine reaches the `Recognized` state — meaning the pointer lifted within the movement threshold and time interval — the callback fires and a `fngr:tap` CustomEvent is dispatched on the element.
 
 `cleanup()` removes the recognizer from the Manager. If no recognizers remain, the Manager is destroyed automatically — removing all event listeners and restoring the element's `touch-action`.
 
@@ -53,11 +53,13 @@ import { TapRecognizer } from 'fngr/tap';
 
 const manager = new Manager(element);
 
-manager.add(new TapRecognizer({
-  threshold: 15,   // max movement in px (default: 10)
-  interval: 300,   // max duration in ms (default: 250)
-  onTap: (event) => console.log(event),
-}));
+manager.add(
+  new TapRecognizer({
+    threshold: 15, // max movement in px (default: 10)
+    interval: 300, // max duration in ms (default: 250)
+    onTap: (event) => console.log(event),
+  }),
+);
 
 // Later — tear everything down
 manager.destroy();

@@ -90,25 +90,25 @@ recognizer.destroy();
 
 ## Options
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `threshold` | `number` | `10` | Maximum pointer movement in pixels before the gesture is failed. |
-| `interval` | `number` | `250` | Maximum duration in milliseconds from pointer down to pointer up for a valid tap. |
-| `onTap` | `(e: TapEvent) => void` | — | Callback invoked when a tap is recognized. |
+| Option      | Type                    | Default | Description                                                                       |
+| ----------- | ----------------------- | ------- | --------------------------------------------------------------------------------- |
+| `threshold` | `number`                | `10`    | Maximum pointer movement in pixels before the gesture is failed.                  |
+| `interval`  | `number`                | `250`   | Maximum duration in milliseconds from pointer down to pointer up for a valid tap. |
+| `onTap`     | `(e: TapEvent) => void` | —       | Callback invoked when a tap is recognized.                                        |
 
 ## TapEvent
 
 The event object passed to the `onTap` callback.
 
-| Property | Type | Description |
-|---|---|---|
-| `type` | `'tap'` | Always `'tap'`. |
-| `count` | `1` | Tap count (always `1` for single tap; `2` for DoubleTapEvent). |
-| `target` | `Element` | The element the gesture was initiated on. |
-| `pointers` | `PointerInfo[]` | Array of pointer snapshots at the time of recognition. |
-| `timestamp` | `number` | The `PointerEvent.timeStamp` value from the triggering event. |
-| `srcEvent` | `PointerEvent` | The raw DOM `PointerEvent` that triggered recognition. |
-| `preventDefault` | `() => void` | Calls `preventDefault()` on the underlying source event. |
+| Property         | Type            | Description                                                    |
+| ---------------- | --------------- | -------------------------------------------------------------- |
+| `type`           | `'tap'`         | Always `'tap'`.                                                |
+| `count`          | `1`             | Tap count (always `1` for single tap; `2` for DoubleTapEvent). |
+| `target`         | `Element`       | The element the gesture was initiated on.                      |
+| `pointers`       | `PointerInfo[]` | Array of pointer snapshots at the time of recognition.         |
+| `timestamp`      | `number`        | The `PointerEvent.timeStamp` value from the triggering event.  |
+| `srcEvent`       | `PointerEvent`  | The raw DOM `PointerEvent` that triggered recognition.         |
+| `preventDefault` | `() => void`    | Calls `preventDefault()` on the underlying source event.       |
 
 Each `PointerInfo` object in `pointers` has the following shape:
 
@@ -152,10 +152,10 @@ el.addEventListener('fngr:tap', (e) => {
                     reset
 ```
 
-| Transition | Trigger |
-|---|---|
-| Idle → Possible | `pointerdown` received |
-| Possible → Failed | Pointer moved beyond `threshold`, or pointer cancel |
-| Possible → Recognized | `pointerup` within `threshold` and `interval` |
-| Recognized → Idle | Automatic reset after emitting the event |
-| Failed → Idle | Automatic reset after failure |
+| Transition            | Trigger                                             |
+| --------------------- | --------------------------------------------------- |
+| Idle → Possible       | `pointerdown` received                              |
+| Possible → Failed     | Pointer moved beyond `threshold`, or pointer cancel |
+| Possible → Recognized | `pointerup` within `threshold` and `interval`       |
+| Recognized → Idle     | Automatic reset after emitting the event            |
+| Failed → Idle         | Reset on the next `pointerup` or `pointercancel`    |
