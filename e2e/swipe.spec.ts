@@ -122,14 +122,19 @@ test.describe('Swipe E2E', () => {
       const startY = box!.y + 140;
 
       await performSwipe(page, startX, startY, startX + 180, startY);
-      // Wait for the first swipe to be fully processed before starting the second
+      // Wait for the first swipe result, then let the browser fully settle
       await page.waitForFunction(
         () => window.fngrResults.filter((r: any) => r.type === 'swipe').length >= 1,
       );
-      await page.waitForTimeout(200);
-      await performSwipe(page, startX, startY, startX + 180, startY);
+      await page.waitForTimeout(500);
 
-      await page.waitForTimeout(50);
+      // Second swipe from a different Y to avoid any webkit coalescing
+      await performSwipe(page, startX, startY + 40, startX + 180, startY + 40);
+      await page.waitForFunction(
+        () => window.fngrResults.filter((r: any) => r.type === 'swipe').length >= 2,
+        { timeout: 5000 },
+      );
+
       const results = filterResults(await getResults(page), 'swipe');
       expect(results).toHaveLength(2);
     });
