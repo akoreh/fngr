@@ -34,8 +34,6 @@ Manager.routeEvent
     ↓ (for each recognizer, highest priority first)
 Recognizer.onPointerDown / onPointerMove / onPointerUp / onPointerCancel
     ↓ (on state transition to Recognized/Began)
-Arbitrator — fail conflicting recognizers, respect simultaneousWith
-    ↓
 BaseRecognizer.emit
     ├── options callback  (e.g. onTap)
     └── CustomEvent       (fngr:<type>, bubbles, cancelable)

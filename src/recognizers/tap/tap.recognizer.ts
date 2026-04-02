@@ -4,9 +4,6 @@ import { Manager } from '../../core/manager';
 import { RecognizerState, type PointerInfo } from '../../core/models/types';
 import type { TapEvent, TapOptions } from './models/tap';
 
-const defaultThreshold = 10;
-const defaultInterval = 250;
-
 export class TapRecognizer extends BaseRecognizer<TapEvent> {
   private tracker = new PointerTracker();
   private startTime = 0;
@@ -15,11 +12,13 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
   private activePointerId: number | null = null;
   private target: Element | null = null;
   private pendingEvent: TapEvent | null = null;
+  private readonly defaultThreshold = 10;
+  private readonly defaultInterval = 250;
 
   constructor(options: TapOptions) {
     super(options);
-    this.threshold = options.threshold ?? defaultThreshold;
-    this.interval = options.interval ?? defaultInterval;
+    this.threshold = options.threshold ?? this.defaultThreshold;
+    this.interval = options.interval ?? this.defaultInterval;
   }
 
   onPointerDown(e: PointerEvent): void {
@@ -34,8 +33,8 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
   onPointerMove(e: PointerEvent): void {
     if (this.state !== RecognizerState.Possible) return;
     if (this.pendingEvent) return;
-    this.tracker.onPointerMove(e);
     if (e.pointerId !== this.activePointerId) return;
+    this.tracker.onPointerMove(e);
 
     const start = this.tracker.getStartPosition(e.pointerId);
     if (!start) return;

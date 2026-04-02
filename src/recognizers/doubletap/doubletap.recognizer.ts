@@ -12,7 +12,6 @@ export class DoubleTapRecognizer extends BaseRecognizer<DoubleTapEvent> {
   private target: Element | null = null;
   private activePointerId: number | null = null;
   private startPosition: Point | null = null;
-
   private readonly defaultThreshold = 10;
   private readonly defaultInterval = 300;
 
@@ -37,8 +36,7 @@ export class DoubleTapRecognizer extends BaseRecognizer<DoubleTapEvent> {
       this.target = (e.currentTarget as Element) ?? (e.target as Element);
       this.transition(RecognizerState.Possible);
     } else if (this.state === RecognizerState.Possible && this.tapCount === 1) {
-      // Second tap starting — update tracking for the new pointer
-      this.activePointerId = e.pointerId;
+      if (e.pointerId !== this.activePointerId) return;
       this.startPosition = { x: e.clientX, y: e.clientY };
     }
   }
@@ -117,7 +115,8 @@ export class DoubleTapRecognizer extends BaseRecognizer<DoubleTapEvent> {
     return Math.sqrt(dx * dx + dy * dy) > this.threshold;
   }
 
-  onPointerCancel(_e: PointerEvent): void {
+  onPointerCancel(e: PointerEvent): void {
+    if (e.pointerId !== this.activePointerId) return;
     if (this.state === RecognizerState.Possible) {
       this.fail();
     }
@@ -159,6 +158,7 @@ export class DoubleTapRecognizer extends BaseRecognizer<DoubleTapEvent> {
     this.activePointerId = null;
     this.startPosition = null;
     this.target = null;
+    this.onResolvedCallbacks = [];
   }
 
   override destroy(): void {

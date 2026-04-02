@@ -112,7 +112,7 @@ const tap = new TapRecognizer({
 // Tap waits for double-tap to fail first
 tap.requireFailureOf(doubleTap);
 
-// Higher priority ensures double-tap gets pointer events first
+// Higher priority ensures double-tap processes pointer events before tap
 manager.add(doubleTap, { priority: 10 });
 manager.add(tap);
 ```
@@ -127,7 +127,7 @@ With this setup:
 | Option        | Type                          | Default | Description                                                                                    |
 | ------------- | ----------------------------- | ------- | ---------------------------------------------------------------------------------------------- |
 | `threshold`   | `number`                      | `10`    | Maximum distance in pixels between the two taps, and maximum pointer movement within each tap. |
-| `interval`    | `number`                      | `300`   | Maximum time in milliseconds between the first tap and the second tap.                         |
+| `interval`    | `number`                      | `300`   | Maximum time in milliseconds from the first tap's pointer-up to the second tap's pointer-up.   |
 | `onDoubletap` | `(e: DoubleTapEvent) => void` | —       | Callback invoked when a double-tap is recognized.                                              |
 
 ## DoubleTapEvent

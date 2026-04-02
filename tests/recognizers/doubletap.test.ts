@@ -43,7 +43,7 @@ describe('DoubleTapRecognizer', () => {
       expect(onDoubletap).not.toHaveBeenCalled();
     });
 
-    it('does not fire for three taps (only first two count)', () => {
+    it('fires once for first two taps; third tap starts a new sequence', () => {
       const onDoubletap = vi.fn();
       const mgr = new Manager(el);
       mgr.add(new DoubleTapRecognizer({ onDoubletap }));
