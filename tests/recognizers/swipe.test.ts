@@ -444,6 +444,21 @@ describe('SwipeRecognizer', () => {
       expect(rec.state).toBe(RecognizerState.Idle);
     });
 
+    it('two sequential swipes both fire', () => {
+      const onSwipe = vi.fn();
+      const mgr = new Manager(el);
+      mgr.add(new SwipeRecognizer({ onSwipe, threshold: 30, velocity: 0 }));
+
+      // First swipe right
+      simulateSwipe(el, { x: 50, y: 100 }, { x: 200, y: 100 });
+      // Second swipe left (starts where the first ended)
+      simulateSwipe(el, { x: 200, y: 100 }, { x: 50, y: 100 }, 50);
+
+      expect(onSwipe).toHaveBeenCalledTimes(2);
+      expect(onSwipe.mock.calls[0][0].direction).toBe('right');
+      expect(onSwipe.mock.calls[1][0].direction).toBe('left');
+    });
+
     it('returns to Idle after pointercancel', () => {
       const rec = new SwipeRecognizer({ threshold: 30 });
       const mgr = new Manager(el);

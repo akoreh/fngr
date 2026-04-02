@@ -122,8 +122,12 @@ test.describe('Swipe E2E', () => {
       const startY = box!.y + 140;
 
       await performSwipe(page, startX, startY, startX + 180, startY);
-      await page.waitForTimeout(100);
-      await performSwipe(page, startX + 180, startY, startX, startY);
+      // Wait for the first swipe to be fully processed before starting the second
+      await page.waitForFunction(
+        () => window.fngrResults.filter((r: any) => r.type === 'swipe').length >= 1,
+      );
+      await page.waitForTimeout(200);
+      await performSwipe(page, startX, startY, startX + 180, startY);
 
       await page.waitForTimeout(50);
       const results = filterResults(await getResults(page), 'swipe');
