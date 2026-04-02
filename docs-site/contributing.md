@@ -74,8 +74,12 @@ fngr/
 │       │   ├── doubletap.recognizer.ts # DoubleTapRecognizer class + doubleTap() helper
 │       │   └── models/
 │       │       └── doubletap.ts        # DoubleTapEvent, DoubleTapOptions
+│       ├── longpress/
+│       │   ├── index.ts                # Barrel: exports LongPressRecognizer, longPress, types
+│       │   ├── longpress.recognizer.ts # LongPressRecognizer class + longPress() helper
+│       │   └── models/
+│       │       └── longpress.ts        # LongPressEvent, LongPressOptions
 │       └── models/                     # Type stubs for future recognizers
-│           ├── longpress.ts
 │           └── …
 ├── tests/
 │   ├── core/                           # Unit tests for core primitives
@@ -86,17 +90,20 @@ fngr/
 │   │   └── types.test.ts
 │   ├── recognizers/                    # Unit tests for each recognizer
 │   │   ├── tap.test.ts
-│   │   └── doubletap.test.ts
+│   │   ├── doubletap.test.ts
+│   │   └── longpress.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
 ├── e2e/                                # Playwright end-to-end tests
 │   ├── tap.spec.ts
-│   └── doubletap.spec.ts
+│   ├── doubletap.spec.ts
+│   └── longpress.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
 │   ├── doubletap.html
+│   ├── longpress.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css
@@ -165,16 +172,14 @@ Write tests before the implementation. Use the pointer helpers in `tests/helpers
 
 `src/recognizers/{name}/{name}.recognizer.ts`
 
-Extend `BaseRecognizer<{Name}Event>` and implement the four abstract methods. Use `PointerTracker` for multi-pointer bookkeeping.
+Extend `BaseRecognizer<{Name}Event>` and implement the four abstract methods. Use `PointerTracker` for multi-pointer gestures (pan, pinch, rotate) or track pointers directly for single-pointer gestures (tap, longpress, swipe).
 
 ```ts
 import { BaseRecognizer } from '../../core/base-recognizer';
-import { PointerTracker } from '../../core/pointer-tracker';
 import { RecognizerState } from '../../core/models/types';
 import type { {Name}Event, {Name}Options } from './models/{name}';
 
 export class {Name}Recognizer extends BaseRecognizer<{Name}Event> {
-  private tracker = new PointerTracker();
 
   constructor(options: {Name}Options) {
     super(options);

@@ -6,6 +6,7 @@ export default defineConfig({
     'core/base-recognizer': 'src/core/base-recognizer.ts',
     'recognizers/tap': 'src/recognizers/tap/index.ts',
     'recognizers/doubletap': 'src/recognizers/doubletap/index.ts',
+    'recognizers/longpress': 'src/recognizers/longpress/index.ts',
   },
   format: ['esm'],
   dts: true,

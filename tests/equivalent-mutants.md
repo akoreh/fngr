@@ -3,7 +3,7 @@
 Mutants that survive Stryker but produce identical observable behavior. Documented here so
 future runs can cross-reference survivors against known equivalents instead of re-investigating.
 
-Last verified: 2026-04-02 (Stryker 9.6, mutation score 89.05%, 43 survivors / 475 mutants)
+Last verified: 2026-04-02 (Stryker 9.6, mutation score 88.60%, 65 survivors / 570 mutants)
 
 ---
 
@@ -384,3 +384,88 @@ when the DoubleTapRecognizer transitions to Failed or Recognized. At that point:
 These guards are safety checks for scenarios that don't occur in the test suite's
 single-dep configuration. They would matter with multiple failure dependencies where
 one resolves while another is still pending.
+
+---
+
+## longpress.recognizer.ts
+
+### LP1 — `target ?? fallback` chain mutations (3 mutants)
+
+```
+- this.target = (e.currentTarget as Element) ?? (e.target as Element);
++ this.target = e.currentTarget as Element && e.target as Element;
+- target: this.target ?? (e.currentTarget as Element) ?? (e.target as Element),
++ target: (this.target ?? e.currentTarget as Element) && e.target as Element,
++ target: this.target && e.currentTarget as Element ?? (e.target as Element),
+```
+
+Lines 33, 115.
+
+**Why equivalent:** Same as T1/DT1. `this.target` is always set in `onPointerDown` before
+`emitLongPressUp()` is called. `e.currentTarget` is always non-null during event dispatch.
+
+### LP2 — Defense-in-depth state guards (5 mutants)
+
+```
+- if (this.state !== RecognizerState.Possible) return;       (timer callback, line 38)
+- if (this.state !== RecognizerState.Possible) return;       (onPointerMove, line 68)
+- } else if (this.state === RecognizerState.Possible) {      (onPointerUp, line 85)
+- if (this.state === RecognizerState.Possible) { ... }       (onPointerCancel, line 93)
+- } else if (this.state === RecognizerState.Recognized) {    (onPointerCancel, line 95 → true)
+- if (this.state === RecognizerState.Possible) { ... }       (fail(), line 133)
+```
+
+**Why equivalent:** These guard against impossible states in the normal event flow:
+
+- **Timer callback guard (line 38):** Timer only fires when state is Possible (it's cleared on
+  any transition out of Possible). The guard is defense against a race condition that doesn't
+  occur in unit tests with fake timers.
+- **onPointerMove guard (line 68):** After Recognized, movement is ignored because the gesture
+  already succeeded. After Failed/Idle, the pointer ID check (`e.pointerId !== this.activePointerId`)
+  catches the case since `activePointerId` is null after reset.
+- **onPointerUp else-if (line 85):** After Recognized is handled, the remaining states are
+  Possible or Idle. In Idle, `activePointerId` is null so the pointer ID guard returns early.
+- **onPointerCancel guards (lines 93, 95):** `fail()` has its own Possible guard (line 133).
+  Mutating line 93 to `true` calls `fail()` in non-Possible states, but fail() is a no-op.
+  Mutating line 95 to `true` calls `resetIfTerminal()` in non-Recognized states, but
+  `resetIfTerminal` is a no-op in Idle/Possible.
+- **fail() guard (line 133):** `fail()` is only called from `onPointerMove` (guarded by Possible
+  check) and `onPointerCancel` (also guarded). Double-defense.
+
+### LP3 — `resetIfTerminal` always-true guard
+
+```
+- if (this.state === RecognizerState.Recognized || this.state === RecognizerState.Failed) {
++ if (true) {
+```
+
+Line 141.
+
+**Why equivalent:** Same as DT3. `reset()` directly sets `_state = Idle` without going through
+`transition()`, so calling it in any state is safe.
+
+### LP4 — `clearPendingTimeout` null guard (4 mutants)
+
+```
+- if (this.timeoutId !== null) {
++ if (true) {
++ if (false) {
++ if (this.timeoutId === null) {
+- (block removal)
+```
+
+Lines 146-147.
+
+**Why equivalent:** Same as DT4. `clearTimeout(null)` and `clearTimeout(undefined)` are no-ops
+per the HTML spec.
+
+### LP5 — Convenience function equivalents (same as T5/T6/DT6)
+
+```
+- if (!mgr) {         →  if (true) {         (line 176)
+- if (cleaned) return  →  if (false) return   (line 198)
+- cleaned = true       →  cleaned = false     (line 199)
+```
+
+**Why equivalent:** Same reasoning as T5/T6 for the tap recognizer. The `longPress()` convenience
+function follows the identical Manager-caching and idempotent-cleanup pattern.

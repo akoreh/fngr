@@ -14,7 +14,7 @@ export {
 } from './core/models/types';
 export type { TapEvent, TapOptions } from './recognizers/tap';
 export type { DoubleTapEvent, DoubleTapOptions } from './recognizers/doubletap';
-export type { LongPressEvent, LongPressOptions } from './recognizers/models/longpress';
+export type { LongPressEvent, LongPressOptions } from './recognizers/longpress';
 export type { SwipeEvent, SwipeOptions } from './recognizers/models/swipe';
 export type { PanEvent, PanOptions } from './recognizers/models/pan';
 export type { PinchEvent, PinchOptions } from './recognizers/models/pinch';

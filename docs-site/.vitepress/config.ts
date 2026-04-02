@@ -10,6 +10,7 @@ export default defineConfig({
       alias: {
         'fngr/tap': resolve(__dirname, '../../src/recognizers/tap/index.ts'),
         'fngr/doubletap': resolve(__dirname, '../../src/recognizers/doubletap/index.ts'),
+        'fngr/longpress': resolve(__dirname, '../../src/recognizers/longpress/index.ts'),
         'fngr/base': resolve(__dirname, '../../src/core/base-recognizer'),
         'fngr': resolve(__dirname, '../../src'),
       },
@@ -41,6 +42,7 @@ export default defineConfig({
         items: [
           { text: 'TapRecognizer', link: '/api/tap' },
           { text: 'DoubleTapRecognizer', link: '/api/doubletap' },
+          { text: 'LongPressRecognizer', link: '/api/longpress' },
           { text: 'Manager', link: '/api/manager' },
           { text: 'BaseRecognizer', link: '/api/base-recognizer' },
           { text: 'Arbitrator', link: '/api/arbitrator' },
