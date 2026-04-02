@@ -4,9 +4,6 @@ import { Manager } from '../../core/manager';
 import { RecognizerState, type PointerInfo } from '../../core/models/types';
 import type { TapEvent, TapOptions } from './models/tap';
 
-const defaultThreshold = 10;
-const defaultInterval = 250;
-
 export class TapRecognizer extends BaseRecognizer<TapEvent> {
   private tracker = new PointerTracker();
   private startTime = 0;
@@ -14,11 +11,14 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
   private readonly interval: number;
   private activePointerId: number | null = null;
   private target: Element | null = null;
+  private pendingEvent: TapEvent | null = null;
+  private readonly defaultThreshold = 10;
+  private readonly defaultInterval = 250;
 
   constructor(options: TapOptions) {
     super(options);
-    this.threshold = options.threshold ?? defaultThreshold;
-    this.interval = options.interval ?? defaultInterval;
+    this.threshold = options.threshold ?? this.defaultThreshold;
+    this.interval = options.interval ?? this.defaultInterval;
   }
 
   onPointerDown(e: PointerEvent): void {
@@ -32,8 +32,9 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
 
   onPointerMove(e: PointerEvent): void {
     if (this.state !== RecognizerState.Possible) return;
-    this.tracker.onPointerMove(e);
+    if (this.pendingEvent) return;
     if (e.pointerId !== this.activePointerId) return;
+    this.tracker.onPointerMove(e);
 
     const start = this.tracker.getStartPosition(e.pointerId);
     if (!start) return;
@@ -48,6 +49,12 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
   }
 
   onPointerUp(e: PointerEvent): void {
+    // Already deferred — ignore subsequent pointer events
+    if (this.pendingEvent) {
+      this.tracker.onPointerUp(e);
+      return;
+    }
+
     if (this.state === RecognizerState.Possible && e.pointerId === this.activePointerId) {
       const elapsed = e.timeStamp - this.startTime;
 
@@ -72,8 +79,21 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
           preventDefault: () => e.preventDefault(),
         };
 
-        this.transition(RecognizerState.Recognized);
-        this.emit(event);
+        // Check failure dependencies — defer if any dependency is still pending
+        const deps = this.failureDependencies;
+        const pendingDeps = deps.filter((d) => d.state === RecognizerState.Possible);
+
+        if (pendingDeps.length > 0) {
+          this.pendingEvent = event;
+          for (const dep of pendingDeps) {
+            if ('onResolved' in dep && typeof (dep as any).onResolved === 'function') {
+              (dep as any).onResolved(() => this.tryRecognize());
+            }
+          }
+        } else {
+          this.transition(RecognizerState.Recognized);
+          this.emit(event);
+        }
       } else {
         this.transition(RecognizerState.Failed);
       }
@@ -91,6 +111,29 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
     this.resetIfTerminal();
   }
 
+  private tryRecognize(): void {
+    if (this.state !== RecognizerState.Possible || !this.pendingEvent) return;
+
+    // Check if all failure deps have resolved
+    const stillPending = this.failureDependencies.some((d) => d.state === RecognizerState.Possible);
+    if (stillPending) return;
+
+    // If any dep recognized, this tap should fail
+    const anyRecognized = this.failureDependencies.some(
+      (d) => d.state === RecognizerState.Recognized,
+    );
+
+    if (anyRecognized) {
+      this.transition(RecognizerState.Failed);
+      this.resetIfTerminal();
+      return;
+    }
+
+    this.transition(RecognizerState.Recognized);
+    this.emit(this.pendingEvent);
+    this.resetIfTerminal();
+  }
+
   private resetIfTerminal(): void {
     if (this.state === RecognizerState.Recognized || this.state === RecognizerState.Failed) {
       this.reset();
@@ -103,6 +146,7 @@ export class TapRecognizer extends BaseRecognizer<TapEvent> {
     this.activePointerId = null;
     this.target = null;
     this.startTime = 0;
+    this.pendingEvent = null;
   }
 }
 

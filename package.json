@@ -32,6 +32,10 @@
     "./tap": {
       "types": "./dist/recognizers/tap.d.ts",
       "import": "./dist/recognizers/tap.mjs"
+    },
+    "./doubletap": {
+      "types": "./dist/recognizers/doubletap.d.ts",
+      "import": "./dist/recognizers/doubletap.mjs"
     }
   },
   "files": [
@@ -64,9 +68,14 @@
       "limit": "3 kB"
     },
     {
+      "name": "doubletap (tree-shaken)",
+      "path": "dist/recognizers/doubletap.mjs",
+      "limit": "3 kB"
+    },
+    {
       "name": "full barrel",
       "path": "dist/index.mjs",
-      "limit": "3 kB"
+      "limit": "4 kB"
     },
     {
       "name": "base-recognizer",

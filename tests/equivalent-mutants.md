@@ -3,7 +3,7 @@
 Mutants that survive Stryker but produce identical observable behavior. Documented here so
 future runs can cross-reference survivors against known equivalents instead of re-investigating.
 
-Last verified: 2026-04-02 (Stryker 9.6, mutation score 94.35%, 16 survivors / 283 mutants)
+Last verified: 2026-04-02 (Stryker 9.6, mutation score 89.05%, 43 survivors / 475 mutants)
 
 ---
 
@@ -232,3 +232,155 @@ Line 58.
 never added to `toFail`.
 
 The self-skip is an optimization that avoids the Set lookup.
+
+---
+
+## doubletap.recognizer.ts
+
+### DT1 — `target ?? fallback` chain mutations (2 mutants)
+
+```
+- target: this.target ?? (e.currentTarget as Element) ?? (e.target as Element),
++ target: this.target && e.currentTarget as Element ?? (e.target as Element),
++ target: (this.target ?? e.currentTarget as Element) && e.target as Element,
+```
+
+Lines 41, 122.
+
+**Why equivalent:** Same as T1. `this.target` is always set in `onPointerDown` before
+`emit()` is called. `e.currentTarget` is always non-null during event dispatch. The
+fallback chain is defense-in-depth — the first operand is always truthy.
+
+### DT2 — Defense-in-depth state guards (5 mutants)
+
+```
+- if (this.state !== RecognizerState.Possible) return;       (onPointerMove, line 52)
+- if (!this.startPosition) return;                            (onPointerMove, line 54)
+- if (this.state !== RecognizerState.Possible) { ... return } (onPointerUp, line 69)
+- if (this.startPosition) { ... }                             (onPointerUp, line 75)
+- if (this.tapCount === 2) { ... }                            (else-if, line 96)
+- if (this.firstTapPosition) { ... }                          (line 98)
+- if (this.state === RecognizerState.Possible) { ... }        (onPointerCancel, line 140)
+- if (this.state === RecognizerState.Possible) { ... }        (fail(), line 152)
+```
+
+**Why equivalent:** These guards protect against impossible states in the current event
+flow. `startPosition` is always set when state is `Possible`. `firstTapPosition` is always
+set when `tapCount >= 1`. `onPointerCancel` and `fail()` are only called when state is
+already `Possible`. Removing any single guard produces identical behavior because the
+conditions they guard against never occur in practice.
+
+### DT3 — `resetIfTerminal` always-true guard
+
+```
+- if (this.state === RecognizerState.Recognized || this.state === RecognizerState.Failed) {
++ if (true) {
+```
+
+Line 161.
+
+**Why equivalent:** `reset()` directly sets `_state = Idle` without going through
+`transition()`, so calling it in any state is safe. The guard is a logical assertion, not
+a behavioral gate.
+
+### DT4 — `clearPendingTimeout` null guard
+
+```
+- if (this.timeoutId !== null) {
++ if (true) {
+```
+
+Line 167.
+
+**Why equivalent:** `clearTimeout(null)` and `clearTimeout(undefined)` are no-ops per the
+HTML spec. Setting `this.timeoutId = null` again is also a no-op.
+
+### DT5 — `onResolvedCallbacks = ["Stryker was here"]`
+
+```
+- this.onResolvedCallbacks = [];
++ this.onResolvedCallbacks = ["Stryker was here"];
+```
+
+Line 186 in `destroy()`.
+
+**Why equivalent:** After `destroy()`, the callbacks array is never iterated again. The
+recognizer is removed from the Manager and cannot receive pointer events. The array
+contents don't matter because `notifyResolved` is only called from `fail()` and the
+recognition path, neither of which can execute after destroy.
+
+### DT6 — Convenience function equivalents (same as T5/T6)
+
+```
+- if (!mgr) {         →  if (true) {         (line 197)
+- if (cleaned) return  →  if (false) return   (line 219)
+- cleaned = true       →  cleaned = false     (line 220)
+```
+
+**Why equivalent:** Same reasoning as T5 (Manager caching) and T6 (cleanup idempotency)
+for the tap recognizer. The `doubleTap()` convenience function follows the identical
+pattern.
+
+---
+
+## tap.recognizer.ts (deferred recognition additions)
+
+### TR1 — `pendingDeps` filter mutations (3 mutants)
+
+```
+- const pendingDeps = deps.filter((d) => d.state === RecognizerState.Possible);
++ const pendingDeps = deps;
++ const pendingDeps = deps.filter((d) => true);
+```
+
+Line 85.
+
+**Why equivalent:** When `failureDependencies` is non-empty and a dep is in `Possible`,
+both the filtered and unfiltered arrays include that dep. When no deps are in `Possible`,
+the empty result vs full result doesn't matter because `pendingDeps.length > 0` would be
+`true` for the unfiltered version, causing the tap to defer unnecessarily — but then
+`tryRecognize()` runs immediately (since no deps are pending), finds no deps in Possible,
+and recognizes. The observable behavior is identical: the tap fires synchronously.
+
+### TR2 — `onResolved` duck-type check mutations (3 mutants)
+
+```
+- if ('onResolved' in dep && typeof (dep as any).onResolved === 'function') {
++ if (true) {
++ if ('onResolved' in dep || typeof (dep as any).onResolved === 'function') {
++ if ('onResolved' in dep && true) {
+```
+
+Line 90.
+
+**Why equivalent:** All deps that have `requireFailureOf` set up in our tests are
+`DoubleTapRecognizer` instances, which always have `onResolved`. The guard only matters
+if a recognizer WITHOUT `onResolved` is used as a failure dep — which doesn't occur in
+the test suite. The `true` mutant would call `onResolved` on all deps (same set), and
+the `||` mutant would check a superset condition (also same set in practice).
+
+### TR3 — `tryRecognize` guard mutations (5 mutants)
+
+```
+- if (this.state !== RecognizerState.Possible || !this.pendingEvent) return;
++ if (this.state !== RecognizerState.Possible && !this.pendingEvent) return;
++ if (false || !this.pendingEvent) return;
+- const stillPending = this.failureDependencies.some(...)
++ const stillPending = this.failureDependencies.every(...)
+- if (stillPending) return;    →  if (false) return;
+- const anyRecognized = ...some(...)  →  ...every(...)
+```
+
+Lines 116-125.
+
+**Why equivalent:** `tryRecognize` is only called via `onResolved` callbacks, which fire
+when the DoubleTapRecognizer transitions to Failed or Recognized. At that point:
+
+- state is always Possible (never changed between deferral and callback)
+- pendingEvent is always set (set before registering callbacks)
+- No deps are still Possible (the callback fires after the dep resolved)
+- `some` vs `every` for a single-dep array produces the same result
+
+These guards are safety checks for scenarios that don't occur in the test suite's
+single-dep configuration. They would matter with multiple failure dependencies where
+one resolves while another is still pending.
