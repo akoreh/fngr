@@ -155,7 +155,9 @@ el.addEventListener('fngr:longpressup', (e) => {
    │         │                   ▼
    │         └──────► Failed  Recognized
    │                    │        │
-   │                    │        │ pointerup → emit longpressup
+   │                    │        ├── pointerup → emit longpressup
+   │                    │        │
+   │                    │        └── pointercancel (silent reset)
    └────────────────────┘        │
           reset                  │
    ◄─────────────────────────────┘
