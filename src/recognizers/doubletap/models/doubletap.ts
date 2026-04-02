@@ -1,4 +1,4 @@
-import type { GestureEvent } from '../../core/models/types';
+import type { GestureEvent } from '../../../core/models/types';
 
 export interface DoubleTapEvent extends GestureEvent {
   type: 'doubletap';
@@ -8,5 +8,5 @@ export interface DoubleTapEvent extends GestureEvent {
 export interface DoubleTapOptions {
   threshold?: number;
   interval?: number;
-  onDoubleTap?: (e: DoubleTapEvent) => void;
+  onDoubletap?: (e: DoubleTapEvent) => void;
 }

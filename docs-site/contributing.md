@@ -43,12 +43,12 @@ BaseRecognizer.emit
 
 ### Core components
 
-| File | Role |
-|------|------|
-| `src/core/manager.ts` | Attaches to a DOM element, routes raw pointer events to all registered recognizers |
+| File                          | Role                                                                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `src/core/manager.ts`         | Attaches to a DOM element, routes raw pointer events to all registered recognizers                                   |
 | `src/core/base-recognizer.ts` | Abstract base class: state machine, `transition()`, `emit()`, failure-dependency and simultaneous-recognition wiring |
-| `src/core/arbitrator.ts` | Decides whether a recognizer may recognize, and which competing recognizers to fail when one succeeds |
-| `src/core/pointer-tracker.ts` | Tracks active pointers and their start positions across a gesture's lifetime |
+| `src/core/arbitrator.ts`      | Decides whether a recognizer may recognize, and which competing recognizers to fail when one succeeds                |
+| `src/core/pointer-tracker.ts` | Tracks active pointers and their start positions across a gesture's lifetime                                         |
 
 ---
 
@@ -71,8 +71,12 @@ fngr/
 │       │   ├── tap.recognizer.ts       # TapRecognizer class + tap() helper
 │       │   └── models/
 │       │       └── tap.ts              # TapEvent, TapOptions
+│       ├── doubletap/
+│       │   ├── index.ts                # Barrel: exports DoubleTapRecognizer, doubleTap, types
+│       │   ├── doubletap.recognizer.ts # DoubleTapRecognizer class + doubleTap() helper
+│       │   └── models/
+│       │       └── doubletap.ts        # DoubleTapEvent, DoubleTapOptions
 │       └── models/                     # Type stubs for future recognizers
-│           ├── doubletap.ts
 │           ├── longpress.ts
 │           └── …
 ├── tests/
@@ -83,15 +87,18 @@ fngr/
 │   │   ├── pointer-tracker.test.ts
 │   │   └── types.test.ts
 │   ├── recognizers/                    # Unit tests for each recognizer
-│   │   └── tap.test.ts
+│   │   ├── tap.test.ts
+│   │   └── doubletap.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
 ├── e2e/                                # Playwright end-to-end tests
-│   └── tap.spec.ts
+│   ├── tap.spec.ts
+│   └── doubletap.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
+│   ├── doubletap.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css
