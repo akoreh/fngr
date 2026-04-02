@@ -84,6 +84,11 @@ fngr/
 │       │   ├── swipe.recognizer.ts     # SwipeRecognizer class + swipe() helper
 │       │   └── models/
 │       │       └── swipe.ts            # SwipeEvent, SwipeOptions
+│       ├── pan/
+│       │   ├── index.ts                # Barrel: exports PanRecognizer, pan, types
+│       │   ├── pan.recognizer.ts       # PanRecognizer class + pan() helper
+│       │   └── models/
+│       │       └── pan.ts              # PanEvent, PanOptions
 │       └── models/                     # Type stubs for future recognizers
 │           └── …
 ├── tests/
@@ -97,7 +102,8 @@ fngr/
 │   │   ├── tap.test.ts
 │   │   ├── doubletap.test.ts
 │   │   ├── longpress.test.ts
-│   │   └── swipe.test.ts
+│   │   ├── swipe.test.ts
+│   │   └── pan.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
@@ -105,13 +111,15 @@ fngr/
 │   ├── tap.spec.ts
 │   ├── doubletap.spec.ts
 │   ├── longpress.spec.ts
-│   └── swipe.spec.ts
+│   ├── swipe.spec.ts
+│   └── pan.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
 │   ├── doubletap.html
 │   ├── longpress.html
 │   ├── swipe.html
+│   ├── pan.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css
