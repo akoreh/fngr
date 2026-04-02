@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fngr — tap</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="shared/style.css">
+  <style>
+    .layout { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+
+    #scroll-container {
+      width: 280px;
+      height: 200px;
+      overflow-y: scroll;
+      border: 2px solid #504945;
+      border-radius: 12px;
+      background: #32302f;
+    }
+    #scroll-inner {
+      height: 600px;
+      padding: 1rem;
+      color: #a89984;
+      font-size: 0.85rem;
+    }
+    #scroll-target {
+      width: 200px;
+      height: 100px;
+      margin-top: 1rem;
+      background: #3c3836;
+      border: 2px solid #504945;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a89984;
+      user-select: none;
+      touch-action: none;
+    }
+    #nested-target {
+      width: 280px;
+      height: 280px;
+      background: #3c3836;
+      border: 2px solid #504945;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      touch-action: none;
+    }
+    #nested-target .inner {
+      width: 140px;
+      height: 140px;
+      background: #504945;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a89984;
+      font-size: 0.85rem;
+    }
+    #no-tap-zone {
+      width: 280px;
+      height: 100px;
+      background: #32302f;
+      border: 2px solid #504945;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #665c54;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>tap</h1>
+  <div class="layout">
+    <div id="target" class="target">tap here</div>
+
+    <div id="nested-target">
+      <div class="inner">nested child</div>
+    </div>
+
+    <div id="scroll-container">
+      <div id="scroll-inner">
+        Scroll this container. The tap target below should still work.
+        <div id="scroll-target">tap inside scroll</div>
+        <p style="margin-top:200px">bottom of scroll</p>
+      </div>
+    </div>
+
+    <div id="no-tap-zone">no recognizer here</div>
+  </div>
+  <div id="log"></div>
+  <script type="module">
+    import { tap } from 'fngr/tap';
+    import { logEvent } from './shared/setup.ts';
+
+    // Main target
+    const target = document.getElementById('target');
+    tap(target, (e) => {
+      logEvent('tap', {
+        count: e.count,
+        clientX: e.pointers[0]?.clientX,
+        clientY: e.pointers[0]?.clientY,
+      });
+      target.classList.add('active');
+      setTimeout(() => target.classList.remove('active'), 150);
+    });
+
+    // CustomEvent listener on main target
+    target.addEventListener('fngr:tap', (e) => {
+      logEvent('fngr:tap', { count: e.detail.count });
+    });
+
+    // Nested target — recognizer on parent, child receives click
+    const nestedTarget = document.getElementById('nested-target');
+    tap(nestedTarget, (e) => {
+      logEvent('nested-tap', {
+        count: e.count,
+        clientX: e.pointers[0]?.clientX,
+        clientY: e.pointers[0]?.clientY,
+      });
+    });
+
+    // Scroll container target
+    const scrollTarget = document.getElementById('scroll-target');
+    tap(scrollTarget, (e) => {
+      logEvent('scroll-tap', {
+        count: e.count,
+        clientX: e.pointers[0]?.clientX,
+        clientY: e.pointers[0]?.clientY,
+      });
+    });
+  </script>
+</body>
+</html>

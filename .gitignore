@@ -1,3 +1,13 @@
 docs/
 node_modules/
 dist/
+CLAUDE.md
+.DS_Store
+test-results/
+playwright-report/
+.superpowers/
+docs-site/.vitepress/dist/
+docs-site/.vitepress/cache/
+reports/
+.stryker-tmp/
+tmp/

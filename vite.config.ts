@@ -1,0 +1,13 @@
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+
+export default defineConfig({
+  root: 'examples',
+  resolve: {
+    alias: {
+      'fngr/tap': resolve(__dirname, 'src/recognizers/tap/index.ts'),
+      'fngr/base': resolve(__dirname, 'src/core/base-recognizer'),
+      'fngr': resolve(__dirname, 'src'),
+    },
+  },
+});

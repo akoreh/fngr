@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     'index': 'src/index.ts',
     'core/base-recognizer': 'src/core/base-recognizer.ts',
+    'recognizers/tap': 'src/recognizers/tap/index.ts',
   },
   format: ['esm'],
   dts: true,
