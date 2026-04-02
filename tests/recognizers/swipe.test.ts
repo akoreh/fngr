@@ -160,7 +160,7 @@ describe('SwipeRecognizer', () => {
       expect(onSwipe).toHaveBeenCalledTimes(1);
     });
 
-    it('does not fire at distance exactly at threshold (uses >=)', () => {
+    it('fires at distance exactly at threshold (boundary is inclusive)', () => {
       const onSwipe = vi.fn();
       const mgr = new Manager(el);
       mgr.add(new SwipeRecognizer({ onSwipe, threshold: 30, velocity: 0 }));
@@ -468,6 +468,19 @@ describe('SwipeRecognizer', () => {
       fire(el, 'pointercancel', { clientX: 200, clientY: 100 });
 
       expect(onSwipe).not.toHaveBeenCalled();
+    });
+
+    it('does not fail on pointercancel from a different pointer', () => {
+      const onSwipe = vi.fn();
+      const mgr = new Manager(el);
+      mgr.add(new SwipeRecognizer({ onSwipe, threshold: 30, velocity: 0 }));
+
+      fire(el, 'pointerdown', { clientX: 50, clientY: 100, pointerId: 1, timeStamp: 0 });
+      fire(el, 'pointermove', { clientX: 200, clientY: 100, pointerId: 1, timeStamp: 20 });
+      fire(el, 'pointercancel', { clientX: 0, clientY: 0, pointerId: 2 });
+      fire(el, 'pointerup', { clientX: 200, clientY: 100, pointerId: 1, timeStamp: 30 });
+
+      expect(onSwipe).toHaveBeenCalledTimes(1);
     });
   });
 

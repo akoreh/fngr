@@ -144,20 +144,6 @@ test.describe('Swipe E2E', () => {
       const results = filterResults(await getResults(page), 'swipe');
       expect(results).toHaveLength(0);
     });
-
-    test('slow drag does not fire swipe (below velocity threshold)', async ({ page }) => {
-      const box = await page.locator('#target').boundingBox();
-      const startX = box!.x + 50;
-      const startY = box!.y + 140;
-
-      // Very slow drag — 150px over ~500ms
-      await performSwipe(page, startX, startY, startX + 150, startY, 10, 50);
-
-      await page.waitForTimeout(100);
-      const results = filterResults(await getResults(page), 'swipe');
-      // May or may not fire depending on actual timing, but intent is slow
-      // If it fires, velocity should still be reported
-    });
   });
 
   test.describe('direction filtering', () => {

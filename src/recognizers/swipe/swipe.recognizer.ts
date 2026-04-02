@@ -110,6 +110,7 @@ export class SwipeRecognizer extends BaseRecognizer<SwipeEvent> {
 
   onPointerCancel(e: PointerEvent): void {
     this.tracker.onPointerCancel(e);
+    if (e.pointerId !== this.activePointerId) return;
     if (this.state === RecognizerState.Possible) {
       this.fail();
     }
