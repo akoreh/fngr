@@ -3,6 +3,12 @@ import { Manager } from '../../core/manager';
 import { RecognizerState, type Point, type PointerInfo } from '../../core/models/types';
 import type { LongPressEvent, LongPressOptions } from './models/longpress';
 
+/**
+ * Recognizes a press-and-hold gesture. Fires `'longpress'` when the pointer
+ * is held for {@link LongPressOptions.duration | duration} ms without moving
+ * more than {@link LongPressOptions.threshold | threshold} px, and
+ * `'longpressup'` when the pointer lifts afterward.
+ */
 export class LongPressRecognizer extends BaseRecognizer<LongPressEvent> {
   private readonly threshold: number;
   private readonly duration: number;
@@ -92,7 +98,8 @@ export class LongPressRecognizer extends BaseRecognizer<LongPressEvent> {
     }
   }
 
-  onPointerCancel(_e: PointerEvent): void {
+  onPointerCancel(e: PointerEvent): void {
+    if (e.pointerId !== this.activePointerId) return;
     if (this.state === RecognizerState.Possible) {
       this.fail();
     } else if (this.state === RecognizerState.Recognized) {
@@ -183,6 +190,13 @@ function getOrCreateManager(el: Element): Manager {
   return mgr;
 }
 
+/**
+ * Attach a long-press recognizer to an element.
+ * @param el - Target element.
+ * @param optionsOrCallback - A {@link LongPressOptions} object, or a callback shorthand
+ *   (invoked on `'longpress'` only; use the options form for `onLongpressup`).
+ * @returns Cleanup function that removes the recognizer.
+ */
 export function longPress(
   el: Element,
   optionsOrCallback: LongPressOptions | ((e: LongPressEvent) => void),

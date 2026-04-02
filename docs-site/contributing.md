@@ -172,16 +172,14 @@ Write tests before the implementation. Use the pointer helpers in `tests/helpers
 
 `src/recognizers/{name}/{name}.recognizer.ts`
 
-Extend `BaseRecognizer<{Name}Event>` and implement the four abstract methods. Use `PointerTracker` for multi-pointer bookkeeping.
+Extend `BaseRecognizer<{Name}Event>` and implement the four abstract methods. Use `PointerTracker` for multi-pointer gestures (pan, pinch, rotate) or track pointers directly for single-pointer gestures (tap, longpress, swipe).
 
 ```ts
 import { BaseRecognizer } from '../../core/base-recognizer';
-import { PointerTracker } from '../../core/pointer-tracker';
 import { RecognizerState } from '../../core/models/types';
 import type { {Name}Event, {Name}Options } from './models/{name}';
 
 export class {Name}Recognizer extends BaseRecognizer<{Name}Event> {
-  private tracker = new PointerTracker();
 
   constructor(options: {Name}Options) {
     super(options);

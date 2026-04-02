@@ -192,7 +192,7 @@ describe('LongPressRecognizer', () => {
       expect(onLongpress).toHaveBeenCalledTimes(1);
     });
 
-    it('fails on movement at exactly threshold boundary', () => {
+    it('does not fail when movement equals exactly the threshold', () => {
       const onLongpress = vi.fn();
       const mgr = new Manager(el);
       mgr.add(new LongPressRecognizer({ onLongpress, threshold: 10, duration: 500 }));
@@ -488,7 +488,7 @@ describe('LongPressRecognizer', () => {
       expect(typeof event.preventDefault).toBe('function');
     });
 
-    it('longpress event srcEvent is the pointerdown event', () => {
+    it('longpress event srcEvent is the last pointer event before recognition', () => {
       const onLongpress = vi.fn();
       const mgr = new Manager(el);
       mgr.add(new LongPressRecognizer({ onLongpress, duration: 500 }));
@@ -574,6 +574,40 @@ describe('LongPressRecognizer', () => {
 
       // Should still fire — the tracked pointer (1) is still down
       expect(onLongpress).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores cancel events from other pointers', () => {
+      const onLongpress = vi.fn();
+      const mgr = new Manager(el);
+      mgr.add(new LongPressRecognizer({ onLongpress, duration: 500 }));
+
+      fire(el, 'pointerdown', { clientX: 50, clientY: 50, pointerId: 1 });
+      // Cancel from a different pointer — should be ignored
+      fire(el, 'pointercancel', { clientX: 50, clientY: 50, pointerId: 2 });
+      vi.advanceTimersByTime(500);
+
+      // Should still fire — the tracked pointer (1) is still active
+      expect(onLongpress).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores cancel from other pointer after recognition', () => {
+      const onLongpress = vi.fn();
+      const onLongpressup = vi.fn();
+      const rec = new LongPressRecognizer({ onLongpress, onLongpressup, duration: 500 });
+      const mgr = new Manager(el);
+      mgr.add(rec);
+
+      fire(el, 'pointerdown', { clientX: 50, clientY: 50, pointerId: 1 });
+      vi.advanceTimersByTime(500);
+      expect(onLongpress).toHaveBeenCalledTimes(1);
+
+      // Cancel from a different pointer while Recognized — should NOT reset
+      fire(el, 'pointercancel', { clientX: 50, clientY: 50, pointerId: 2 });
+      expect(rec.state).toBe(RecognizerState.Recognized);
+
+      // Original pointer up should still emit longpressup
+      fire(el, 'pointerup', { clientX: 50, clientY: 50, pointerId: 1 });
+      expect(onLongpressup).toHaveBeenCalledTimes(1);
     });
 
     it('longpressup only fires for the tracked pointer', () => {

@@ -162,10 +162,10 @@ el.addEventListener('fngr:longpressup', (e) => {
                   reset
 ```
 
-| Transition            | Trigger                                                                 |
-| --------------------- | ----------------------------------------------------------------------- |
-| Idle → Possible       | `pointerdown` received — start the duration timer                       |
-| Possible → Recognized | Duration timer fires while pointer is still within threshold            |
-| Possible → Failed     | `pointerup` before timer, movement exceeds `threshold`, `pointercancel` |
-| Recognized → Idle     | `pointerup` after recognition (emits `longpressup` first) or cancel     |
-| Failed → Idle         | Automatic reset after failure                                           |
+| Transition            | Trigger                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Idle → Possible       | `pointerdown` received — start the duration timer                                            |
+| Possible → Recognized | Duration timer fires while pointer is still within threshold                                 |
+| Possible → Failed     | `pointerup` before timer, movement exceeds `threshold`, `pointercancel`                      |
+| Recognized → Idle     | `pointerup` after recognition (emits `longpressup` first), or `pointercancel` (silent reset) |
+| Failed → Idle         | Automatic reset after failure                                                                |
