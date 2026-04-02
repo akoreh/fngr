@@ -1,3 +1,9 @@
+/**
+ * States a gesture recognizer can be in.
+ *
+ * Discrete gestures (tap, doubletap, longpress): Idle → Possible → Recognized | Failed.
+ * Continuous gestures (pan, pinch, rotate): Idle → Possible → Began → Changed → Ended | Cancelled.
+ */
 export enum RecognizerState {
   Idle = 'idle',
   Possible = 'possible',
@@ -32,24 +38,40 @@ export const validTransitions: Record<RecognizerState, RecognizerState[]> = {
   [RecognizerState.Cancelled]: [RecognizerState.Idle],
 };
 
+/** Cardinal swipe direction, or `'none'` when velocity is below threshold. */
 export type Direction = 'left' | 'right' | 'up' | 'down' | 'none';
+/** Filter to restrict which swipe directions a recognizer accepts. */
 export type DirectionFilter = 'all' | 'horizontal' | 'vertical';
+/** 2D point in pixel coordinates. */
 export type Point = { x: number; y: number };
 
+/** Snapshot of a pointer's position at the time a gesture event fires. */
 export interface PointerInfo {
+  /** The `PointerEvent.pointerId`. */
   id: number;
+  /** Horizontal position relative to the viewport. */
   clientX: number;
+  /** Vertical position relative to the viewport. */
   clientY: number;
+  /** Horizontal position relative to the document. */
   pageX: number;
+  /** Vertical position relative to the document. */
   pageY: number;
 }
 
+/** Base shape shared by all gesture events emitted by fngr recognizers. */
 export interface GestureEvent {
+  /** Gesture type identifier (e.g. `'tap'`, `'longpress'`, `'pan'`). */
   type: string;
+  /** The DOM element the recognizer is attached to. */
   target: Element;
+  /** Pointer snapshots at the time the event fires. */
   pointers: PointerInfo[];
+  /** Timestamp (ms) when the event fires. */
   timestamp: number;
+  /** The raw DOM `PointerEvent` that triggered or was active at recognition time. */
   srcEvent: PointerEvent;
+  /** Calls `preventDefault()` on the underlying `PointerEvent`. */
   preventDefault(): void;
 }
 

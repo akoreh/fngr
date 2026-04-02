@@ -3,6 +3,11 @@ import { Manager } from '../../core/manager';
 import { RecognizerState, type Point, type PointerInfo } from '../../core/models/types';
 import type { DoubleTapEvent, DoubleTapOptions } from './models/doubletap';
 
+/**
+ * Recognizes two consecutive single-finger taps within
+ * {@link DoubleTapOptions.interval | interval} ms. Both taps must land within
+ * {@link DoubleTapOptions.threshold | threshold} px of each other.
+ */
 export class DoubleTapRecognizer extends BaseRecognizer<DoubleTapEvent> {
   private readonly threshold: number;
   private readonly interval: number;
@@ -181,6 +186,12 @@ function getOrCreateManager(el: Element): Manager {
   return mgr;
 }
 
+/**
+ * Attach a double-tap recognizer to an element.
+ * @param el - Target element.
+ * @param optionsOrCallback - A {@link DoubleTapOptions} object, or a callback shorthand.
+ * @returns Cleanup function that removes the recognizer.
+ */
 export function doubleTap(
   el: Element,
   optionsOrCallback: DoubleTapOptions | ((e: DoubleTapEvent) => void),

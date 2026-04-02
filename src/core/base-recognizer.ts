@@ -1,5 +1,14 @@
 import { RecognizerState, validTransitions, type GestureEvent } from './models/types';
 
+/**
+ * Abstract base class for all gesture recognizers.
+ *
+ * Provides the state machine, event emission, failure-dependency wiring, and
+ * simultaneous-recognition support. Subclasses implement the four pointer-event
+ * handlers to drive transitions.
+ *
+ * @typeParam T - The specific gesture event type this recognizer emits.
+ */
 export abstract class BaseRecognizer<T extends GestureEvent> {
   private _state: RecognizerState = RecognizerState.Idle;
   private _failureDeps: Set<BaseRecognizer<any>> = new Set();
@@ -15,10 +24,12 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     }
   }
 
+  /** Current state of the recognizer's state machine. */
   get state(): RecognizerState {
     return this._state;
   }
 
+  /** Recognizers that must fail before this one can recognize. */
   get failureDependencies(): ReadonlyArray<BaseRecognizer<any>> {
     return Array.from(this._failureDeps);
   }
@@ -50,6 +61,10 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     }
   }
 
+  /**
+   * This recognizer will defer recognition until `other` has failed.
+   * Used for tap/doubletap arbitration — tap waits for doubletap to fail first.
+   */
   requireFailureOf(other: BaseRecognizer<any>): this {
     this._failureDeps.add(other);
     return this;
@@ -59,6 +74,7 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     return this._failureDeps.has(other);
   }
 
+  /** Allow this recognizer and `other` to recognize at the same time. */
   allowSimultaneous(other: BaseRecognizer<any>): this {
     this._simultaneousWith.add(other);
     other._simultaneousWith.add(this);
@@ -69,10 +85,12 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     return this._simultaneousWith.has(other);
   }
 
+  /** Reset the recognizer to Idle. Subclasses should call `super.reset()` and clear their own state. */
   reset(): void {
     this._state = RecognizerState.Idle;
   }
 
+  /** Tear down the recognizer, clearing all state, deps, and callbacks. */
   destroy(): void {
     this.reset();
     this._failureDeps.clear();

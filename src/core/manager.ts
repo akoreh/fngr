@@ -1,6 +1,8 @@
 import type { BaseRecognizer } from './base-recognizer';
 
+/** Options for {@link Manager.add}. */
 export interface AddOptions {
+  /** Higher priority recognizers receive pointer events first. Default `0`. */
   priority?: number;
 }
 
@@ -9,6 +11,21 @@ interface ManagedRecognizer {
   priority: number;
 }
 
+/**
+ * Binds gesture recognizers to a DOM element.
+ *
+ * Attaches pointer-event listeners and routes each event to all registered
+ * recognizers in priority order. Sets `touch-action: none` on the element
+ * (restored on {@link destroy}).
+ *
+ * @example
+ * ```ts
+ * const manager = new Manager(el);
+ * manager.add(new TapRecognizer({ onTap: console.log }));
+ * // later:
+ * manager.destroy();
+ * ```
+ */
 export class Manager {
   readonly element: Element;
   private recognizers: ManagedRecognizer[] = [];
@@ -43,6 +60,7 @@ export class Manager {
     element.addEventListener('pointercancel', this.handlePointerCancel);
   }
 
+  /** Register a recognizer. Returns the recognizer for chaining. */
   add<T extends BaseRecognizer<any>>(recognizer: T, options: AddOptions = {}): T {
     this.recognizers.push({
       recognizer,
@@ -53,10 +71,12 @@ export class Manager {
     return recognizer;
   }
 
+  /** Number of recognizers currently registered. */
   get recognizerCount(): number {
     return this.recognizers.length;
   }
 
+  /** Unregister a recognizer. Does nothing if not found. */
   remove(recognizer: BaseRecognizer<any>): void {
     const idx = this.recognizers.findIndex((mr) => mr.recognizer === recognizer);
     if (idx !== -1) {
@@ -73,6 +93,7 @@ export class Manager {
     }
   }
 
+  /** Remove all listeners, destroy all recognizers, restore `touch-action`. */
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
