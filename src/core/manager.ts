@@ -25,7 +25,14 @@ export class Manager {
     this.previousTouchAction = (element as HTMLElement).style.touchAction;
     (element as HTMLElement).style.touchAction = 'none';
 
-    this.handlePointerDown = (e) => this.routeEvent('onPointerDown', e as PointerEvent);
+    this.handlePointerDown = (e) => {
+      const pe = e as PointerEvent;
+      const target = e.currentTarget as Element;
+      if (typeof target.setPointerCapture === 'function') {
+        target.setPointerCapture(pe.pointerId);
+      }
+      this.routeEvent('onPointerDown', pe);
+    };
     this.handlePointerMove = (e) => this.routeEvent('onPointerMove', e as PointerEvent);
     this.handlePointerUp = (e) => this.routeEvent('onPointerUp', e as PointerEvent);
     this.handlePointerCancel = (e) => this.routeEvent('onPointerCancel', e as PointerEvent);

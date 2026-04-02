@@ -13,6 +13,7 @@ export class PointerTracker {
   }
 
   onPointerDown(e: PointerEvent): void {
+    if (this.tracked.has(e.pointerId)) return;
     const info: PointerInfo = {
       id: e.pointerId,
       clientX: e.clientX,
