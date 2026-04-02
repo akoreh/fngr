@@ -1,13 +1,13 @@
 {
   "name": "fngr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Modern gesture recognition library. PointerEvent-based, TypeScript-first, tree-shakeable, zero dependencies.",
   "type": "module",
   "license": "MIT",
   "author": "Koreh Andrei",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AKoreh/fngr.git"
+    "url": "https://github.com/akoreh/fngr.git"
   },
   "keywords": [
     "gestures",
@@ -28,23 +28,76 @@
     "./base": {
       "types": "./dist/core/base-recognizer.d.ts",
       "import": "./dist/core/base-recognizer.mjs"
+    },
+    "./tap": {
+      "types": "./dist/recognizers/tap.d.ts",
+      "import": "./dist/recognizers/tap.mjs"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "scripts": {
+    "dev": "vite --host",
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:all": "vitest run && playwright test"
+    "test:all": "vitest run && playwright test",
+    "test:mutate": "stryker run",
+    "size": "size-limit",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix",
+    "format": "prettier --write src/ tests/ e2e/",
+    "format:check": "prettier --check src/ tests/ e2e/",
+    "docs": "vitepress dev docs-site",
+    "docs:build": "vitepress build docs-site",
+    "prepare": "husky"
+  },
+  "size-limit": [
+    {
+      "name": "tap (tree-shaken)",
+      "path": "dist/recognizers/tap.mjs",
+      "limit": "3 kB"
+    },
+    {
+      "name": "full barrel",
+      "path": "dist/index.mjs",
+      "limit": "3 kB"
+    },
+    {
+      "name": "base-recognizer",
+      "path": "dist/core/base-recognizer.mjs",
+      "limit": "1 kB"
+    }
+  ],
+  "lint-staged": {
+    "src/**/*.ts": ["prettier --write", "eslint --fix"],
+    "tests/**/*.ts": ["prettier --write", "eslint --fix"],
+    "e2e/**/*.ts": "prettier --write",
+    "*.md": "prettier --write"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
+    "@size-limit/file": "^12.0.1",
+    "@stryker-mutator/vitest-runner": "^9.6.0",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^29.0.1",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
+    "size-limit": "^12.0.1",
     "tsup": "^8.5.1",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vite": "^8.0.3",
+    "vitepress": "^1.6.4",
     "vitest": "^4.1.2"
   }
 }

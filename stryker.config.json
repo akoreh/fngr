@@ -1,0 +1,14 @@
+{
+  "testRunner": "vitest",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/models/**/*.ts"
+  ],
+  "ignorePatterns": ["node_modules", "dist", "docs-site", "e2e", "examples"],
+  "reporters": ["clear-text", "progress"],
+  "thresholds": {
+    "high": 95,
+    "low": 90,
+    "break": 85
+  }
+}
