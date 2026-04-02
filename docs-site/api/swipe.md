@@ -2,6 +2,10 @@
 
 Recognizes a single-finger directional flick gesture. The pointer must travel at least the configured distance at or above the configured velocity. Direction is determined by the dominant axis of movement.
 
+## Try It
+
+<SwipeDemo />
+
 ## Import
 
 **Convenience API** (recommended for most use cases):

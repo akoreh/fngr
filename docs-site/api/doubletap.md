@@ -2,6 +2,10 @@
 
 Recognizes two consecutive single-finger taps within a configurable time interval. Both taps must land within the movement threshold of each other.
 
+## Try It
+
+<DoubleTapDemo />
+
 ## Import
 
 **Convenience API** (recommended for most use cases):
