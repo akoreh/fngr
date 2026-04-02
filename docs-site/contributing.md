@@ -79,6 +79,11 @@ fngr/
 │       │   ├── longpress.recognizer.ts # LongPressRecognizer class + longPress() helper
 │       │   └── models/
 │       │       └── longpress.ts        # LongPressEvent, LongPressOptions
+│       ├── swipe/
+│       │   ├── index.ts                # Barrel: exports SwipeRecognizer, swipe, types
+│       │   ├── swipe.recognizer.ts     # SwipeRecognizer class + swipe() helper
+│       │   └── models/
+│       │       └── swipe.ts            # SwipeEvent, SwipeOptions
 │       └── models/                     # Type stubs for future recognizers
 │           └── …
 ├── tests/
@@ -91,19 +96,22 @@ fngr/
 │   ├── recognizers/                    # Unit tests for each recognizer
 │   │   ├── tap.test.ts
 │   │   ├── doubletap.test.ts
-│   │   └── longpress.test.ts
+│   │   ├── longpress.test.ts
+│   │   └── swipe.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
 ├── e2e/                                # Playwright end-to-end tests
 │   ├── tap.spec.ts
 │   ├── doubletap.spec.ts
-│   └── longpress.spec.ts
+│   ├── longpress.spec.ts
+│   └── swipe.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
 │   ├── doubletap.html
 │   ├── longpress.html
+│   ├── swipe.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css

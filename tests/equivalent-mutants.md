@@ -3,7 +3,7 @@
 Mutants that survive Stryker but produce identical observable behavior. Documented here so
 future runs can cross-reference survivors against known equivalents instead of re-investigating.
 
-Last verified: 2026-04-02 (Stryker 9.6, mutation score 88.60%, 65 survivors / 570 mutants)
+Last verified: 2026-04-02 (Stryker 9.6, mutation score 86.90%, 95 survivors / 725 mutants)
 
 ---
 
@@ -469,3 +469,145 @@ per the HTML spec.
 
 **Why equivalent:** Same reasoning as T5/T6 for the tap recognizer. The `longPress()` convenience
 function follows the identical Manager-caching and idempotent-cleanup pattern.
+
+---
+
+## swipe.recognizer.ts
+
+### SW1 — `target ?? fallback` chain mutations (3 mutants)
+
+```
+- this.target = (e.currentTarget as Element) ?? (e.target as Element);
++ this.target = e.currentTarget as Element && e.target as Element;
+- target: this.target ?? (e.currentTarget as Element) ?? (e.target as Element),
++ target: (this.target ?? e.currentTarget as Element) && e.target as Element,
++ target: this.target && e.currentTarget as Element ?? (e.target as Element),
+```
+
+Lines 40, 95.
+
+**Why equivalent:** Same as T1/DT1/LP1. `this.target` and `e.currentTarget` are always
+non-null during event dispatch.
+
+### SW2 — `onPointerUp` guard mutations (6 mutants)
+
+```
+- if (this.state !== RecognizerState.Possible || e.pointerId !== this.activePointerId) {
++ if (false) {
++ if (this.state !== RecognizerState.Possible && e.pointerId !== this.activePointerId) {
++ if (false || e.pointerId !== this.activePointerId) {
++ if (this.state !== RecognizerState.Possible || false) {
+- (block removal)
+```
+
+Line 49.
+
+**Why equivalent:** The combined guard protects against: (a) state not Possible (after reset),
+(b) wrong pointer. After reset, `activePointerId` is null, so `e.pointerId !== null` is always
+true → the pointer check alone catches state-after-reset. The `&&` mutant narrows the guard
+but the downstream `getStartPosition` returns undefined for untracked pointers, causing `!start`
+→ `fail()`. All paths converge on the same behavior.
+
+### SW3 — `!start` guard (2 mutants)
+
+```
+- if (!start) {
++ if (false) {
+- (block removal)
+```
+
+Line 55.
+
+**Why equivalent:** `start` is undefined only for untracked pointers, which can't happen because
+`onPointerDown` tracks the pointer before `onPointerUp` could access it. The guard is defense
+against pointers that were never tracked.
+
+### SW4 — Speed sqrt subtraction mutant
+
+```
+- const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
++ const speed = Math.sqrt(vel.x * vel.x - vel.y * vel.y);
+```
+
+Line 67.
+
+**Why equivalent:** For purely horizontal swipes (vel.y ≈ 0), subtraction produces the same
+result as addition. Only kills with a diagonal swipe where vel.y is significant AND the
+resulting subtraction goes negative (producing NaN). The targeted test with a vertical-dominant
+swipe kills the NaN variant, but pure horizontal swipes in the test suite don't distinguish
+`+` from `-` when `vel.y ≈ 0`.
+
+**Note:** This was partially killed by the targeted test but a variant survives when vel.y
+is very small relative to vel.x.
+
+### SW5 — Velocity boundary `< vs <=`
+
+```
+- if (distance < this.threshold || speed < this.velocityThreshold) {
++ if (distance < this.threshold || speed <= this.velocityThreshold) {
+```
+
+Line 69.
+
+**Why equivalent:** Tests use `velocity: 0` as threshold, so `speed <= 0` vs `speed < 0` only
+matters when speed is exactly 0.0, which requires a completely stationary pointer — caught by
+the distance threshold instead. With `velocity: 0`, both operators produce the same result for
+any positive speed.
+
+### SW6 — `computeDirection` boundary mutations (3 mutants)
+
+```
+- if (Math.abs(dx) > Math.abs(dy)) {     → >=
+- return dx > 0 ? 'right' : 'left';      → dx >= 0
+- return dy > 0 ? 'down' : 'up';         → dy >= 0
+```
+
+Lines 119-122.
+
+**Why equivalent:** The `>=` mutant only matters when `abs(dx) === abs(dy)` (45-degree diagonal).
+The `dx >= 0` and `dy >= 0` mutants only matter when `dx === 0` or `dy === 0`. But if dx=0 in
+the horizontal branch, abs(0) > abs(dy) requires dy=0 too — zero-distance fails threshold.
+Same for dy=0 in the vertical branch.
+
+### SW7 — `matchesDirectionFilter` dead code and guard mutations (4 mutants)
+
+```
+- if (this.directionFilter === 'vertical') return ...   → if (true) return ...
+- return false;                                          → return true;
+- if (this.state === RecognizerState.Possible) { ... }   → if (true) { ... }   (fail, line 133)
+```
+
+Lines 128-129, 133.
+
+**Why equivalent:**
+
+- `if (true)` on line 128: only `'vertical'` reaches this line (after `'all'` and `'horizontal'`
+  checks), so `true` has the same effect.
+- `return true` on line 129: unreachable in TypeScript since `DirectionFilter` is a union of
+  three string literals. No test can reach this line without casting.
+- `if (true)` in `fail()` (line 133): `fail()` is only called when state is Possible.
+
+### SW8 — `resetIfTerminal` always-true guard + onPointerCancel guard
+
+```
+- if (this.state === RecognizerState.Recognized || this.state === RecognizerState.Failed) {
++ if (true) {
+- if (this.state === RecognizerState.Possible) {    (onPointerCancel, line 113)
++ if (true) {
+```
+
+Lines 113, 140.
+
+**Why equivalent:** Same as DT3/LP3. `reset()` works from any state. `fail()` has its own
+Possible guard.
+
+### SW9 — Convenience function equivalents (same as T5/T6/DT6/LP5)
+
+```
+- if (!mgr) {         →  if (true) {         (line 159)
+- if (cleaned) return  →  if (false) return   (line 185)
+- cleaned = true       →  cleaned = false     (line 186)
+- if (mgr.recognizerCount === 0) {  → if (true) {  (line 189)
+```
+
+**Why equivalent:** Same reasoning as all other recognizers' convenience functions.

@@ -16,6 +16,7 @@ Each gesture has a one-liner convenience function that returns a cleanup functio
 import { tap } from 'fngr/tap';
 import { doubleTap } from 'fngr/doubletap';
 import { longPress } from 'fngr/longpress';
+import { swipe } from 'fngr/swipe';
 
 const off = tap(element, (e) => console.log('tapped', e.pointers[0].clientX));
 off(); // cleanup
@@ -30,6 +31,7 @@ Recognizers are tree-shakeable subpath exports — import only what you use:
 | Tap        | `tap()`             | `TapRecognizer`        | `fngr/tap`         |
 | Double Tap | `doubleTap()`       | `DoubleTapRecognizer`  | `fngr/doubletap`   |
 | Long Press | `longPress()`       | `LongPressRecognizer`  | `fngr/longpress`   |
+| Swipe      | `swipe()`           | `SwipeRecognizer`      | `fngr/swipe`       |
 
 Core: `Manager`, `BaseRecognizer`, types — import from `fngr`.
 
@@ -138,6 +140,44 @@ interface LongPressEvent {
 
 ---
 
+## Swipe
+
+Recognizes a single-finger directional flick. Checks distance, velocity, and optional direction filter on pointer-up.
+
+```ts
+import { swipe } from 'fngr/swipe';
+
+const off = swipe(el, (e) => console.log('swiped', e.direction));
+
+// Options form — restrict to horizontal, custom thresholds
+const off = swipe(el, {
+  threshold: 50,   // min distance in px (default 30)
+  velocity: 0.5,   // min speed in px/ms (default 0.3)
+  direction: 'horizontal',  // 'all' | 'horizontal' | 'vertical' (default 'all')
+  onSwipe(e) { console.log(e.direction, e.distance, e.velocity); },
+});
+```
+
+### SwipeEvent
+
+```ts
+interface SwipeEvent {
+  type: 'swipe';
+  direction: 'left' | 'right' | 'up' | 'down';
+  distance: number;   // Euclidean distance in px
+  velocity: number;   // speed in px/ms
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+Direction is determined by dominant axis: `|dx| > |dy|` → horizontal, otherwise vertical.
+
+---
+
 ## Manager + Class API
 
 For composing multiple recognizers on one element, or for arbitration:
@@ -195,6 +235,7 @@ el.addEventListener('fngr:tap', (e) => {
 el.addEventListener('fngr:doubletap', (e) => { /* DoubleTapEvent */ });
 el.addEventListener('fngr:longpress', (e) => { /* LongPressEvent */ });
 el.addEventListener('fngr:longpressup', (e) => { /* LongPressEvent */ });
+el.addEventListener('fngr:swipe', (e) => { /* SwipeEvent */ });
 ```
 
 Events bubble and are cancelable.
