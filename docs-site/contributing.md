@@ -74,8 +74,12 @@ fngr/
 │       │   ├── doubletap.recognizer.ts # DoubleTapRecognizer class + doubleTap() helper
 │       │   └── models/
 │       │       └── doubletap.ts        # DoubleTapEvent, DoubleTapOptions
+│       ├── longpress/
+│       │   ├── index.ts                # Barrel: exports LongPressRecognizer, longPress, types
+│       │   ├── longpress.recognizer.ts # LongPressRecognizer class + longPress() helper
+│       │   └── models/
+│       │       └── longpress.ts        # LongPressEvent, LongPressOptions
 │       └── models/                     # Type stubs for future recognizers
-│           ├── longpress.ts
 │           └── …
 ├── tests/
 │   ├── core/                           # Unit tests for core primitives
@@ -86,17 +90,20 @@ fngr/
 │   │   └── types.test.ts
 │   ├── recognizers/                    # Unit tests for each recognizer
 │   │   ├── tap.test.ts
-│   │   └── doubletap.test.ts
+│   │   ├── doubletap.test.ts
+│   │   └── longpress.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
 ├── e2e/                                # Playwright end-to-end tests
 │   ├── tap.spec.ts
-│   └── doubletap.spec.ts
+│   ├── doubletap.spec.ts
+│   └── longpress.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
 │   ├── doubletap.html
+│   ├── longpress.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css

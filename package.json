@@ -36,6 +36,10 @@
     "./doubletap": {
       "types": "./dist/recognizers/doubletap.d.ts",
       "import": "./dist/recognizers/doubletap.mjs"
+    },
+    "./longpress": {
+      "types": "./dist/recognizers/longpress.d.ts",
+      "import": "./dist/recognizers/longpress.mjs"
     }
   },
   "files": [
@@ -73,9 +77,14 @@
       "limit": "3 kB"
     },
     {
+      "name": "longpress (tree-shaken)",
+      "path": "dist/recognizers/longpress.mjs",
+      "limit": "3 kB"
+    },
+    {
       "name": "full barrel",
       "path": "dist/index.mjs",
-      "limit": "4 kB"
+      "limit": "5 kB"
     },
     {
       "name": "base-recognizer",

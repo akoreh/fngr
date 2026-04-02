@@ -1,4 +1,4 @@
-import type { GestureEvent } from '../../core/models/types';
+import type { GestureEvent } from '../../../core/models/types';
 
 export interface LongPressEvent extends GestureEvent {
   type: 'longpress' | 'longpressup';
@@ -8,6 +8,6 @@ export interface LongPressEvent extends GestureEvent {
 export interface LongPressOptions {
   threshold?: number;
   duration?: number;
-  onLongPress?: (e: LongPressEvent) => void;
-  onLongPressUp?: (e: LongPressEvent) => void;
+  onLongpress?: (e: LongPressEvent) => void;
+  onLongpressup?: (e: LongPressEvent) => void;
 }

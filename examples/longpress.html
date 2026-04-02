@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fngr — longpress</title>
+    <link rel="icon" href="favicon.png" />
+    <link rel="stylesheet" href="shared/style.css" />
+    <style>
+      .layout {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      #scroll-container {
+        width: 280px;
+        height: 200px;
+        overflow-y: scroll;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        background: #32302f;
+      }
+      #scroll-inner {
+        height: 600px;
+        padding: 1rem;
+        color: #a89984;
+        font-size: 0.85rem;
+      }
+      #scroll-target {
+        width: 200px;
+        height: 100px;
+        margin-top: 1rem;
+        background: #3c3836;
+        border: 2px solid #504945;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a89984;
+        user-select: none;
+        touch-action: none;
+      }
+      #short-duration-target {
+        width: 280px;
+        height: 280px;
+        background: #3c3836;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: #a89984;
+        user-select: none;
+        touch-action: none;
+      }
+      #no-tap-zone {
+        width: 280px;
+        height: 100px;
+        background: #32302f;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #665c54;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>longpress</h1>
+    <div class="layout">
+      <div id="target" class="target">long-press here</div>
+
+      <div id="short-duration-target">200ms duration</div>
+
+      <div id="scroll-container">
+        <div id="scroll-inner">
+          Scroll this container. The longpress target below should still work.
+          <div id="scroll-target">longpress inside scroll</div>
+          <p style="margin-top: 200px">bottom of scroll</p>
+        </div>
+      </div>
+
+      <div id="no-tap-zone">no recognizer here</div>
+    </div>
+    <div id="log"></div>
+    <script type="module">
+      import { longPress, LongPressRecognizer } from 'fngr/longpress';
+      import { Manager } from 'fngr';
+      import { logEvent } from './shared/setup.ts';
+
+      // Main target — default 500ms duration
+      const target = document.getElementById('target');
+      longPress(target, {
+        onLongpress(e) {
+          logEvent('longpress', {
+            duration: Math.round(e.duration),
+            clientX: e.pointers[0]?.clientX,
+            clientY: e.pointers[0]?.clientY,
+          });
+          target.classList.add('active');
+        },
+        onLongpressup(e) {
+          logEvent('longpressup', {
+            duration: Math.round(e.duration),
+            clientX: e.pointers[0]?.clientX,
+            clientY: e.pointers[0]?.clientY,
+          });
+          target.classList.remove('active');
+        },
+      });
+
+      // CustomEvent listener on main target
+      target.addEventListener('fngr:longpress', (e) => {
+        logEvent('fngr:longpress', { duration: Math.round(e.detail.duration) });
+      });
+
+      target.addEventListener('fngr:longpressup', (e) => {
+        logEvent('fngr:longpressup', { duration: Math.round(e.detail.duration) });
+      });
+
+      // Short duration target — 200ms
+      const shortTarget = document.getElementById('short-duration-target');
+      longPress(shortTarget, {
+        duration: 200,
+        onLongpress(e) {
+          logEvent('short-longpress', {
+            duration: Math.round(e.duration),
+            clientX: e.pointers[0]?.clientX,
+            clientY: e.pointers[0]?.clientY,
+          });
+          shortTarget.classList.add('active');
+        },
+        onLongpressup(e) {
+          logEvent('short-longpressup', {
+            duration: Math.round(e.duration),
+          });
+          shortTarget.classList.remove('active');
+        },
+      });
+
+      // Scroll container target — default duration
+      const scrollTarget = document.getElementById('scroll-target');
+      longPress(scrollTarget, {
+        onLongpress(e) {
+          logEvent('scroll-longpress', {
+            duration: Math.round(e.duration),
+            clientX: e.pointers[0]?.clientX,
+            clientY: e.pointers[0]?.clientY,
+          });
+        },
+        onLongpressup(e) {
+          logEvent('scroll-longpressup', {
+            duration: Math.round(e.duration),
+          });
+        },
+      });
+    </script>
+  </body>
+</html>
