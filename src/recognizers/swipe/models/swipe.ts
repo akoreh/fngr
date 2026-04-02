@@ -7,7 +7,7 @@ export interface SwipeEvent extends GestureEvent {
   direction: Exclude<Direction, 'none'>;
   /** Speed of the swipe in px/ms. */
   velocity: number;
-  /** Total distance traveled from pointer-down to pointer-up, in px. */
+  /** Straight-line distance from pointer-down to pointer-up position, in px. */
   distance: number;
 }
 

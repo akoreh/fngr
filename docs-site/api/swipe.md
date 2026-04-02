@@ -99,17 +99,29 @@ recognizer.destroy();
 
 The event object passed to the `onSwipe` callback.
 
-| Property         | Type                                  | Description                                                  |
-| ---------------- | ------------------------------------- | ------------------------------------------------------------ |
-| `type`           | `'swipe'`                             | Always `'swipe'`.                                            |
-| `direction`      | `'left' \| 'right' \| 'up' \| 'down'` | Cardinal direction determined by the dominant movement axis. |
-| `distance`       | `number`                              | Euclidean distance from pointer-down to pointer-up, in px.   |
-| `velocity`       | `number`                              | Speed of the swipe in px/ms.                                 |
-| `target`         | `Element`                             | The element the gesture was initiated on.                    |
-| `pointers`       | `PointerInfo[]`                       | Array with one pointer snapshot at the time of recognition.  |
-| `timestamp`      | `number`                              | Timestamp when the swipe was recognized.                     |
-| `srcEvent`       | `PointerEvent`                        | The raw `pointerup` event that completed the swipe.          |
-| `preventDefault` | `() => void`                          | Calls `preventDefault()` on the underlying source event.     |
+| Property         | Type                                  | Description                                                    |
+| ---------------- | ------------------------------------- | -------------------------------------------------------------- |
+| `type`           | `'swipe'`                             | Always `'swipe'`.                                              |
+| `direction`      | `'left' \| 'right' \| 'up' \| 'down'` | Cardinal direction determined by the dominant movement axis.   |
+| `distance`       | `number`                              | Straight-line distance from pointer-down to pointer-up, in px. |
+| `velocity`       | `number`                              | Speed of the swipe in px/ms.                                   |
+| `target`         | `Element`                             | The element the gesture was initiated on.                      |
+| `pointers`       | `PointerInfo[]`                       | Array with one pointer snapshot at the time of recognition.    |
+| `timestamp`      | `number`                              | Timestamp when the swipe was recognized.                       |
+| `srcEvent`       | `PointerEvent`                        | The raw `pointerup` event that completed the swipe.            |
+| `preventDefault` | `() => void`                          | Calls `preventDefault()` on the underlying source event.       |
+
+Each `PointerInfo` object in `pointers` has the following shape:
+
+```ts
+interface PointerInfo {
+  id: number;
+  clientX: number;
+  clientY: number;
+  pageX: number;
+  pageY: number;
+}
+```
 
 ## CustomEvent
 

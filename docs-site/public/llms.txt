@@ -164,7 +164,7 @@ const off = swipe(el, {
 interface SwipeEvent {
   type: 'swipe';
   direction: 'left' | 'right' | 'up' | 'down';
-  distance: number;   // Euclidean distance in px
+  distance: number;   // straight-line distance in px
   velocity: number;   // speed in px/ms
   target: Element;
   pointers: PointerInfo[];

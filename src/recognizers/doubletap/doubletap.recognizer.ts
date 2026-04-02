@@ -6,7 +6,8 @@ import type { DoubleTapEvent, DoubleTapOptions } from './models/doubletap';
 /**
  * Recognizes two consecutive single-finger taps within
  * {@link DoubleTapOptions.interval | interval} ms. Both taps must land within
- * {@link DoubleTapOptions.threshold | threshold} px of each other.
+ * {@link DoubleTapOptions.threshold | threshold} px of each other, and neither
+ * tap may move more than that distance during its press.
  */
 export class DoubleTapRecognizer extends BaseRecognizer<DoubleTapEvent> {
   private readonly threshold: number;
