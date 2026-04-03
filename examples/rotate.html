@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fngr — rotate</title>
+    <link rel="icon" href="favicon.png" />
+    <link rel="stylesheet" href="shared/style.css" />
+    <style>
+      .layout {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      #scroll-container {
+        width: 280px;
+        height: 200px;
+        overflow-y: scroll;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        background: #32302f;
+      }
+      #scroll-inner {
+        height: 600px;
+        padding: 1rem;
+        color: #a89984;
+        font-size: 0.85rem;
+      }
+      #scroll-target {
+        width: 200px;
+        height: 100px;
+        margin-top: 1rem;
+        background: #3c3836;
+        border: 2px solid #504945;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a89984;
+        user-select: none;
+        touch-action: none;
+      }
+      #no-recognizer-zone {
+        width: 280px;
+        height: 100px;
+        background: #32302f;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #665c54;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>rotate</h1>
+    <div class="layout">
+      <div id="target" class="target">rotate here</div>
+
+      <div id="scroll-container">
+        <div id="scroll-inner">
+          Scroll this container. The rotate target below should still work.
+          <div id="scroll-target">rotate inside scroll</div>
+          <p style="margin-top: 200px">bottom of scroll</p>
+        </div>
+      </div>
+
+      <div id="no-recognizer-zone">no recognizer here</div>
+    </div>
+    <div id="log"></div>
+    <script type="module">
+      import { rotate } from 'fngr/rotate';
+      import { logEvent } from './shared/setup.ts';
+
+      // Main target
+      const target = document.getElementById('target');
+      rotate(target, {
+        onRotatestart(e) {
+          logEvent('rotatestart', {
+            rotation: e.rotation.toFixed(3),
+            deltaRotation: e.deltaRotation.toFixed(3),
+            center: { x: Math.round(e.center.x), y: Math.round(e.center.y) },
+            isFirst: e.isFirst,
+            isFinal: e.isFinal,
+          });
+          target.classList.add('active');
+        },
+        onRotatemove(e) {
+          logEvent('rotatemove', {
+            rotation: e.rotation.toFixed(3),
+            deltaRotation: e.deltaRotation.toFixed(3),
+            center: { x: Math.round(e.center.x), y: Math.round(e.center.y) },
+          });
+        },
+        onRotateend(e) {
+          logEvent('rotateend', {
+            rotation: e.rotation.toFixed(3),
+            deltaRotation: e.deltaRotation.toFixed(3),
+            center: { x: Math.round(e.center.x), y: Math.round(e.center.y) },
+            isFinal: e.isFinal,
+          });
+          target.classList.remove('active');
+        },
+        onRotatecancel(e) {
+          logEvent('rotatecancel', {
+            rotation: e.rotation.toFixed(3),
+            deltaRotation: e.deltaRotation.toFixed(3),
+            center: { x: Math.round(e.center.x), y: Math.round(e.center.y) },
+            isFinal: e.isFinal,
+          });
+          target.classList.remove('active');
+        },
+      });
+
+      // CustomEvent listeners
+      target.addEventListener('fngr:rotatestart', (e) => {
+        logEvent('fngr:rotatestart', {
+          rotation: e.detail.rotation.toFixed(3),
+          center: { x: Math.round(e.detail.center.x), y: Math.round(e.detail.center.y) },
+        });
+      });
+      target.addEventListener('fngr:rotatemove', (e) => {
+        logEvent('fngr:rotatemove', {
+          rotation: e.detail.rotation.toFixed(3),
+        });
+      });
+      target.addEventListener('fngr:rotateend', (e) => {
+        logEvent('fngr:rotateend', {
+          rotation: e.detail.rotation.toFixed(3),
+        });
+      });
+
+      // Scroll container target
+      const scrollTarget = document.getElementById('scroll-target');
+      rotate(scrollTarget, {
+        onRotatestart(e) {
+          logEvent('scroll-rotatestart', {
+            rotation: e.rotation.toFixed(3),
+            center: { x: Math.round(e.center.x), y: Math.round(e.center.y) },
+          });
+        },
+        onRotatemove(e) {
+          logEvent('scroll-rotatemove', {
+            rotation: e.rotation.toFixed(3),
+          });
+        },
+        onRotateend(e) {
+          logEvent('scroll-rotateend', {
+            rotation: e.rotation.toFixed(3),
+          });
+        },
+      });
+    </script>
+  </body>
+</html>

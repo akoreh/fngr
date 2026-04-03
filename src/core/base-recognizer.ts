@@ -15,6 +15,10 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
   private _simultaneousWith: Set<BaseRecognizer<any>> = new Set();
   protected callbacks: Record<string, ((e: any) => void) | undefined>;
 
+  /**
+   * @param options - Recognizer options. Properties whose keys start with `on`
+   *   and whose values are functions are extracted as gesture-event callbacks.
+   */
   constructor(options: Record<string, any>) {
     this.callbacks = {};
     for (const [key, value] of Object.entries(options)) {
@@ -34,9 +38,13 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     return Array.from(this._failureDeps);
   }
 
+  /** Handle a `pointerdown` event. Subclasses drive state transitions from here. */
   abstract onPointerDown(e: PointerEvent): void;
+  /** Handle a `pointermove` event. */
   abstract onPointerMove(e: PointerEvent): void;
+  /** Handle a `pointerup` event. */
   abstract onPointerUp(e: PointerEvent): void;
+  /** Handle a `pointercancel` event. */
   abstract onPointerCancel(e: PointerEvent): void;
 
   protected transition(newState: RecognizerState): void {
@@ -70,6 +78,7 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     return this;
   }
 
+  /** Returns `true` if this recognizer must wait for `other` to fail before recognizing. */
   hasFailureDependency(other: BaseRecognizer<any>): boolean {
     return this._failureDeps.has(other);
   }
@@ -81,6 +90,7 @@ export abstract class BaseRecognizer<T extends GestureEvent> {
     return this;
   }
 
+  /** Returns `true` if this recognizer is allowed to recognize at the same time as `other`. */
   canRecognizeSimultaneously(other: BaseRecognizer<any>): boolean {
     return this._simultaneousWith.has(other);
   }

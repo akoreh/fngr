@@ -52,8 +52,12 @@
       "import": "./dist/recognizers/pan.mjs"
     },
     "./pinch": {
-      "types": "./dist/pinch.d.ts",
-      "import": "./dist/pinch.mjs"
+      "types": "./dist/recognizers/pinch.d.ts",
+      "import": "./dist/recognizers/pinch.mjs"
+    },
+    "./rotate": {
+      "types": "./dist/recognizers/rotate.d.ts",
+      "import": "./dist/recognizers/rotate.mjs"
     }
   },
   "files": [
@@ -108,6 +112,11 @@
     {
       "name": "pinch (tree-shaken)",
       "path": "dist/recognizers/pinch.mjs",
+      "limit": "3 kB"
+    },
+    {
+      "name": "rotate (tree-shaken)",
+      "path": "dist/recognizers/rotate.mjs",
       "limit": "3 kB"
     },
     {

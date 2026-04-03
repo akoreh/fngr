@@ -15,6 +15,11 @@ export enum RecognizerState {
   Cancelled = 'cancelled',
 }
 
+/**
+ * Allowed state transitions for the recognizer state machine.
+ *
+ * Maps each {@link RecognizerState} to the set of states it may transition to.
+ */
 export const validTransitions: Record<RecognizerState, RecognizerState[]> = {
   [RecognizerState.Idle]: [RecognizerState.Possible],
   [RecognizerState.Possible]: [
@@ -42,7 +47,7 @@ export const validTransitions: Record<RecognizerState, RecognizerState[]> = {
 export type Direction = 'left' | 'right' | 'up' | 'down' | 'none';
 /** Filter to restrict which swipe directions a recognizer accepts. */
 export type DirectionFilter = 'all' | 'horizontal' | 'vertical';
-/** 2D point in pixel coordinates. */
+/** 2D point in pixel coordinates (`x` = horizontal, `y` = vertical). */
 export type Point = { x: number; y: number };
 
 /** Snapshot of a pointer's position at the time a gesture event fires. */
@@ -75,8 +80,17 @@ export interface GestureEvent {
   preventDefault(): void;
 }
 
+/**
+ * Internal bookkeeping for a single pointer being tracked.
+ *
+ * Stores its current snapshot, initial position, and a recent-history
+ * ring used for velocity calculation.
+ */
 export interface TrackedPointer {
+  /** Latest position snapshot for this pointer. */
   info: PointerInfo;
+  /** Position where the pointer initially went down. */
   start: Point;
+  /** Recent position/time samples used for velocity computation. */
   history: Array<{ x: number; y: number; t: number }>;
 }

@@ -20,6 +20,7 @@ canRecognize(
 Returns `true` if `recognizer` is allowed to transition to a recognized state right now.
 
 A recognizer is blocked when it has at least one failure dependency (added via `requireFailureOf`) that:
+
 - is present in `allRecognizers`, **and**
 - is still in the `Possible` state (i.e. it has not yet failed or recognized).
 
@@ -56,7 +57,10 @@ shouldFail(
 
 Returns `true` if `target` should be forced to `Failed` because `recognized` just transitioned to a recognized state.
 
+The `allRecognizers` parameter is accepted for API symmetry but is not used in the current implementation. The decision is based solely on an identity check and `canRecognizeSimultaneously`.
+
 `target` is **not** failed when:
+
 - `target === recognized` (a recognizer never fails itself), or
 - `target.canRecognizeSimultaneously(recognized)` returns `true` (the pair has opted in to simultaneous recognition).
 
@@ -67,11 +71,12 @@ Returns `true` if `target` should be forced to `Failed` because `recognized` jus
 ```ts
 resolveConflicts(
   recognized: BaseRecognizer<any>,
-  managed: ManagedEntry[],
+  managed: Array<{ recognizer: BaseRecognizer<any>; priority: number }>,
 ): BaseRecognizer<any>[]
 ```
 
 Returns the list of recognizers that should be failed because `recognized` just won. Iterates `managed`, skipping:
+
 - `recognized` itself,
 - recognizers in an inactive state (`Idle`, `Failed`, `Recognized`, `Ended`, `Cancelled`), and
 - recognizers that can run simultaneously with `recognized`.

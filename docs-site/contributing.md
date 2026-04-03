@@ -89,8 +89,16 @@ fngr/
 │       │   ├── pan.recognizer.ts       # PanRecognizer class + pan() helper
 │       │   └── models/
 │       │       └── pan.ts              # PanEvent, PanOptions
-│       └── models/                     # Type stubs for future recognizers
-│           └── …
+│       ├── pinch/
+│       │   ├── index.ts                # Barrel: exports PinchRecognizer, pinch, types
+│       │   ├── pinch.recognizer.ts     # PinchRecognizer class + pinch() helper
+│       │   └── models/
+│       │       └── pinch.ts            # PinchEvent, PinchOptions
+│       └── rotate/
+│           ├── index.ts                # Barrel: exports RotateRecognizer, rotate, types
+│           ├── rotate.recognizer.ts    # RotateRecognizer class + rotate() helper
+│           └── models/
+│               └── rotate.ts          # RotateEvent, RotateOptions
 ├── tests/
 │   ├── core/                           # Unit tests for core primitives
 │   │   ├── arbitrator.test.ts
@@ -103,7 +111,9 @@ fngr/
 │   │   ├── doubletap.test.ts
 │   │   ├── longpress.test.ts
 │   │   ├── swipe.test.ts
-│   │   └── pan.test.ts
+│   │   ├── pan.test.ts
+│   │   ├── pinch.test.ts
+│   │   └── rotate.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
@@ -112,7 +122,9 @@ fngr/
 │   ├── doubletap.spec.ts
 │   ├── longpress.spec.ts
 │   ├── swipe.spec.ts
-│   └── pan.spec.ts
+│   ├── pan.spec.ts
+│   ├── pinch.spec.ts
+│   └── rotate.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
@@ -120,6 +132,8 @@ fngr/
 │   ├── longpress.html
 │   ├── swipe.html
 │   ├── pan.html
+│   ├── pinch.html
+│   ├── rotate.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css

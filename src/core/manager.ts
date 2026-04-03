@@ -27,6 +27,7 @@ interface ManagedRecognizer {
  * ```
  */
 export class Manager {
+  /** The DOM element this manager is bound to. */
   readonly element: Element;
   private recognizers: ManagedRecognizer[] = [];
   private previousTouchAction: string;
@@ -37,6 +38,11 @@ export class Manager {
   private handlePointerUp: (e: Event) => void;
   private handlePointerCancel: (e: Event) => void;
 
+  /**
+   * Create a Manager and bind pointer-event listeners to `element`.
+   *
+   * @param element - The DOM element to listen for pointer events on.
+   */
   constructor(element: Element) {
     this.element = element;
     this.previousTouchAction = (element as HTMLElement).style.touchAction;
@@ -60,7 +66,13 @@ export class Manager {
     element.addEventListener('pointercancel', this.handlePointerCancel);
   }
 
-  /** Register a recognizer. Returns the recognizer for chaining. */
+  /**
+   * Register a recognizer. Returns the recognizer for chaining.
+   *
+   * @param recognizer - The recognizer instance to register.
+   * @param options - Optional priority settings.
+   * @returns The same recognizer, for chaining.
+   */
   add<T extends BaseRecognizer<any>>(recognizer: T, options: AddOptions = {}): T {
     this.recognizers.push({
       recognizer,
@@ -76,7 +88,11 @@ export class Manager {
     return this.recognizers.length;
   }
 
-  /** Unregister a recognizer. Does nothing if not found. */
+  /**
+   * Unregister a recognizer. Does nothing if not found.
+   *
+   * @param recognizer - The recognizer instance to remove.
+   */
   remove(recognizer: BaseRecognizer<any>): void {
     const idx = this.recognizers.findIndex((mr) => mr.recognizer === recognizer);
     if (idx !== -1) {

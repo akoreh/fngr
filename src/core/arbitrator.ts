@@ -12,10 +12,20 @@ const activeStates = new Set([
   RecognizerState.Changed,
 ]);
 
+/**
+ * Coordinates recognition among multiple gesture recognizers.
+ *
+ * Enforces failure dependencies (e.g. tap waits for doubletap to fail),
+ * simultaneous recognition, and priority-based conflict resolution.
+ */
 export class Arbitrator {
   /**
    * Check whether a recognizer is allowed to transition to Recognized/Began,
    * given its failure dependencies.
+   *
+   * @param recognizer - The recognizer attempting to recognize.
+   * @param allRecognizers - All recognizers registered on the same element.
+   * @returns `true` if no failure dependency is still in the `Possible` state.
    */
   canRecognize(recognizer: BaseRecognizer<any>, allRecognizers: BaseRecognizer<any>[]): boolean {
     for (const dep of recognizer.failureDependencies) {
@@ -30,6 +40,11 @@ export class Arbitrator {
   /**
    * Check whether `target` should be failed because `recognized` just
    * transitioned to a recognized state.
+   *
+   * @param target - The recognizer being evaluated for failure.
+   * @param recognized - The recognizer that just recognized.
+   * @param _allRecognizers - All recognizers (currently unused, reserved for future rules).
+   * @returns `true` if `target` should be forced to `Failed`.
    */
   shouldFail(
     target: BaseRecognizer<any>,
@@ -44,6 +59,10 @@ export class Arbitrator {
   /**
    * When a recognizer transitions to Recognized/Began, determine which
    * other recognizers should be forced to Failed.
+   *
+   * @param recognized - The recognizer that just recognized.
+   * @param managed - All managed recognizer entries with their priorities.
+   * @returns Array of recognizers that should be forced to `Failed`.
    */
   resolveConflicts(
     recognized: BaseRecognizer<any>,
