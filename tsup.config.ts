@@ -9,6 +9,7 @@ export default defineConfig({
     'recognizers/longpress': 'src/recognizers/longpress/index.ts',
     'recognizers/swipe': 'src/recognizers/swipe/index.ts',
     'recognizers/pan': 'src/recognizers/pan/index.ts',
+    'recognizers/pinch': 'src/recognizers/pinch/index.ts',
   },
   format: ['esm'],
   dts: true,

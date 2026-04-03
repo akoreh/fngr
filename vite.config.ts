@@ -10,6 +10,7 @@ export default defineConfig({
       'fngr/longpress': resolve(__dirname, 'src/recognizers/longpress/index.ts'),
       'fngr/swipe': resolve(__dirname, 'src/recognizers/swipe/index.ts'),
       'fngr/pan': resolve(__dirname, 'src/recognizers/pan/index.ts'),
+      'fngr/pinch': resolve(__dirname, 'src/recognizers/pinch/index.ts'),
       'fngr/base': resolve(__dirname, 'src/core/base-recognizer'),
       'fngr': resolve(__dirname, 'src'),
     },

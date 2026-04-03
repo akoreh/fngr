@@ -17,6 +17,7 @@ import { tap } from 'fngr/tap';
 import { doubleTap } from 'fngr/doubletap';
 import { longPress } from 'fngr/longpress';
 import { swipe } from 'fngr/swipe';
+import { pinch } from 'fngr/pinch';
 
 const off = tap(element, (e) => console.log('tapped', e.pointers[0].clientX));
 off(); // cleanup
@@ -33,6 +34,7 @@ Recognizers are tree-shakeable subpath exports — import only what you use:
 | Long Press | `longPress()`       | `LongPressRecognizer`  | `fngr/longpress`   |
 | Swipe      | `swipe()`           | `SwipeRecognizer`      | `fngr/swipe`       |
 | Pan        | `pan()`             | `PanRecognizer`        | `fngr/pan`         |
+| Pinch      | `pinch()`           | `PinchRecognizer`      | `fngr/pinch`       |
 
 Core: `Manager`, `BaseRecognizer`, types — import from `fngr`.
 
@@ -221,6 +223,46 @@ interface PanEvent {
 
 ---
 
+## Pinch
+
+Recognizes a two-finger pinch (zoom) gesture. Continuous lifecycle: pinchstart → pinchmove (repeating) → pinchend | pinchcancel.
+
+```ts
+import { pinch } from 'fngr/pinch';
+
+const off = pinch(el, {
+  threshold: 0,     // min scale change before recognition (default 0)
+  onPinchstart(e) { console.log('start', e.scale); },
+  onPinchmove(e) { console.log('move', e.scale, e.deltaScale); },
+  onPinchend(e) { console.log('end', e.scale); },
+  onPinchcancel(e) { console.log('cancelled'); },
+});
+```
+
+### PinchEvent
+
+```ts
+interface PinchEvent {
+  type: 'pinchstart' | 'pinchmove' | 'pinchend' | 'pinchcancel';
+  scale: number;       // cumulative scale factor (1 = no change)
+  deltaScale: number;  // change since last event
+  center: Point;       // midpoint between the two pointers {x, y}
+  isFirst: boolean;    // true only on pinchstart
+  isFinal: boolean;    // true only on pinchend/pinchcancel
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+Scale = currentDistance / initialDistance. `scale > 1` = zoom in, `scale < 1` = zoom out.
+
+State machine: Idle → (2x pointerdown) → Possible → (scale change > threshold) → Began → Changed → Ended | Cancelled.
+
+---
+
 ## Manager + Class API
 
 For composing multiple recognizers on one element, or for arbitration:
@@ -283,6 +325,10 @@ el.addEventListener('fngr:panstart', (e) => { /* PanEvent */ });
 el.addEventListener('fngr:panmove', (e) => { /* PanEvent */ });
 el.addEventListener('fngr:panend', (e) => { /* PanEvent */ });
 el.addEventListener('fngr:pancancel', (e) => { /* PanEvent */ });
+el.addEventListener('fngr:pinchstart', (e) => { /* PinchEvent */ });
+el.addEventListener('fngr:pinchmove', (e) => { /* PinchEvent */ });
+el.addEventListener('fngr:pinchend', (e) => { /* PinchEvent */ });
+el.addEventListener('fngr:pinchcancel', (e) => { /* PinchEvent */ });
 ```
 
 Events bubble and are cancelable.

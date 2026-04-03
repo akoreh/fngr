@@ -5,6 +5,7 @@ import DoubleTapDemo from '../../demos/DoubleTapDemo.vue';
 import LongPressDemo from '../../demos/LongPressDemo.vue';
 import SwipeDemo from '../../demos/SwipeDemo.vue';
 import PanDemo from '../../demos/PanDemo.vue';
+import PinchDemo from '../../demos/PinchDemo.vue';
 
 export default {
   extends: DefaultTheme,
@@ -14,5 +15,6 @@ export default {
     app.component('LongPressDemo', LongPressDemo);
     app.component('SwipeDemo', SwipeDemo);
     app.component('PanDemo', PanDemo);
+    app.component('PinchDemo', PinchDemo);
   },
 };
