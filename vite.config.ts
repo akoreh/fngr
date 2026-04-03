@@ -11,6 +11,7 @@ export default defineConfig({
       'fngr/swipe': resolve(__dirname, 'src/recognizers/swipe/index.ts'),
       'fngr/pan': resolve(__dirname, 'src/recognizers/pan/index.ts'),
       'fngr/pinch': resolve(__dirname, 'src/recognizers/pinch/index.ts'),
+      'fngr/rotate': resolve(__dirname, 'src/recognizers/rotate/index.ts'),
       'fngr/base': resolve(__dirname, 'src/core/base-recognizer'),
       'fngr': resolve(__dirname, 'src'),
     },

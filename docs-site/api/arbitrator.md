@@ -1,6 +1,6 @@
 # Arbitrator
 
-`Arbitrator` contains the conflict-resolution logic that determines whether a recognizer is allowed to fire and which competing recognizers should be failed when one wins. The `Manager` uses it internally — you only need to interact with this class directly when building a custom Manager integration.
+`Arbitrator` contains the conflict-resolution logic that determines whether a recognizer is allowed to fire and which competing recognizers should be failed when one wins. Use it when building a custom manager or coordination layer on top of recognizers.
 
 ```ts
 import { Arbitrator } from 'fngr';
@@ -20,6 +20,7 @@ canRecognize(
 Returns `true` if `recognizer` is allowed to transition to a recognized state right now.
 
 A recognizer is blocked when it has at least one failure dependency (added via `requireFailureOf`) that:
+
 - is present in `allRecognizers`, **and**
 - is still in the `Possible` state (i.e. it has not yet failed or recognized).
 
@@ -56,7 +57,10 @@ shouldFail(
 
 Returns `true` if `target` should be forced to `Failed` because `recognized` just transitioned to a recognized state.
 
+The `allRecognizers` parameter is accepted for API symmetry but is not used in the current implementation. The decision is based solely on an identity check and `canRecognizeSimultaneously`.
+
 `target` is **not** failed when:
+
 - `target === recognized` (a recognizer never fails itself), or
 - `target.canRecognizeSimultaneously(recognized)` returns `true` (the pair has opted in to simultaneous recognition).
 
@@ -67,19 +71,20 @@ Returns `true` if `target` should be forced to `Failed` because `recognized` jus
 ```ts
 resolveConflicts(
   recognized: BaseRecognizer<any>,
-  managed: ManagedEntry[],
+  managed: Array<{ recognizer: BaseRecognizer<any>; priority: number }>,
 ): BaseRecognizer<any>[]
 ```
 
 Returns the list of recognizers that should be failed because `recognized` just won. Iterates `managed`, skipping:
+
 - `recognized` itself,
 - recognizers in an inactive state (`Idle`, `Failed`, `Recognized`, `Ended`, `Cancelled`), and
 - recognizers that can run simultaneously with `recognized`.
 
-The returned array contains every remaining recognizer in an active state (`Possible`, `Began`, `Changed`). The Manager transitions each of them to `Failed`.
+The returned array contains every remaining recognizer in an active state (`Possible`, `Began`, `Changed`). The caller is responsible for transitioning each of them to `Failed`.
 
 ## See Also
 
 - [BaseRecognizer](/api/base-recognizer) — `requireFailureOf`, `allowSimultaneous`
-- [Manager](/api/manager) — uses `Arbitrator` to coordinate registered recognizers
+- [Manager](/api/manager) — routes pointer events to registered recognizers
 - [State Machine Guide](/guides/state-machine) — active vs terminal states

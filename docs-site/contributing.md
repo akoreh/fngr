@@ -46,7 +46,7 @@ BaseRecognizer.emit
 | `src/core/manager.ts`         | Attaches to a DOM element, routes raw pointer events to all registered recognizers                                   |
 | `src/core/base-recognizer.ts` | Abstract base class: state machine, `transition()`, `emit()`, failure-dependency and simultaneous-recognition wiring |
 | `src/core/arbitrator.ts`      | Decides whether a recognizer may recognize, and which competing recognizers to fail when one succeeds                |
-| `src/core/pointer-tracker.ts` | Tracks active pointers and their start positions across a gesture's lifetime                                         |
+| `src/core/pointer-tracker.ts` | Tracks active pointers, velocity, and multi-touch geometry (center, distance, angle)                                 |
 
 ---
 
@@ -89,8 +89,16 @@ fngr/
 │       │   ├── pan.recognizer.ts       # PanRecognizer class + pan() helper
 │       │   └── models/
 │       │       └── pan.ts              # PanEvent, PanOptions
-│       └── models/                     # Type stubs for future recognizers
-│           └── …
+│       ├── pinch/
+│       │   ├── index.ts                # Barrel: exports PinchRecognizer, pinch, types
+│       │   ├── pinch.recognizer.ts     # PinchRecognizer class + pinch() helper
+│       │   └── models/
+│       │       └── pinch.ts            # PinchEvent, PinchOptions
+│       └── rotate/
+│           ├── index.ts                # Barrel: exports RotateRecognizer, rotate, types
+│           ├── rotate.recognizer.ts    # RotateRecognizer class + rotate() helper
+│           └── models/
+│               └── rotate.ts          # RotateEvent, RotateOptions
 ├── tests/
 │   ├── core/                           # Unit tests for core primitives
 │   │   ├── arbitrator.test.ts
@@ -103,7 +111,9 @@ fngr/
 │   │   ├── doubletap.test.ts
 │   │   ├── longpress.test.ts
 │   │   ├── swipe.test.ts
-│   │   └── pan.test.ts
+│   │   ├── pan.test.ts
+│   │   ├── pinch.test.ts
+│   │   └── rotate.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
@@ -112,7 +122,9 @@ fngr/
 │   ├── doubletap.spec.ts
 │   ├── longpress.spec.ts
 │   ├── swipe.spec.ts
-│   └── pan.spec.ts
+│   ├── pan.spec.ts
+│   ├── pinch.spec.ts
+│   └── rotate.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
@@ -120,6 +132,8 @@ fngr/
 │   ├── longpress.html
 │   ├── swipe.html
 │   ├── pan.html
+│   ├── pinch.html
+│   ├── rotate.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css

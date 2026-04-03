@@ -18,4 +18,4 @@ export type { LongPressEvent, LongPressOptions } from './recognizers/longpress';
 export type { SwipeEvent, SwipeOptions } from './recognizers/swipe';
 export type { PanEvent, PanOptions } from './recognizers/pan';
 export type { PinchEvent, PinchOptions } from './recognizers/pinch';
-export type { RotateEvent, RotateOptions } from './recognizers/models/rotate';
+export type { RotateEvent, RotateOptions } from './recognizers/rotate';

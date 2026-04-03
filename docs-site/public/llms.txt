@@ -16,8 +16,10 @@ Each gesture has a one-liner convenience function that returns a cleanup functio
 import { tap } from 'fngr/tap';
 import { doubleTap } from 'fngr/doubletap';
 import { longPress } from 'fngr/longpress';
+import { pan } from 'fngr/pan';
 import { swipe } from 'fngr/swipe';
 import { pinch } from 'fngr/pinch';
+import { rotate } from 'fngr/rotate';
 
 const off = tap(element, (e) => console.log('tapped', e.pointers[0].clientX));
 off(); // cleanup
@@ -35,6 +37,7 @@ Recognizers are tree-shakeable subpath exports — import only what you use:
 | Swipe      | `swipe()`           | `SwipeRecognizer`      | `fngr/swipe`       |
 | Pan        | `pan()`             | `PanRecognizer`        | `fngr/pan`         |
 | Pinch      | `pinch()`           | `PinchRecognizer`      | `fngr/pinch`       |
+| Rotate     | `rotate()`          | `RotateRecognizer`     | `fngr/rotate`      |
 
 Core: `Manager`, `BaseRecognizer`, types — import from `fngr`.
 
@@ -263,6 +266,46 @@ State machine: Idle → (2x pointerdown) → Possible → (scale change > thresh
 
 ---
 
+## Rotate
+
+Recognizes a two-finger rotation gesture. Continuous lifecycle: rotatestart → rotatemove (repeating) → rotateend | rotatecancel.
+
+```ts
+import { rotate } from 'fngr/rotate';
+
+const off = rotate(el, {
+  threshold: 0,     // min rotation in degrees before recognition (default 0)
+  onRotatestart(e) { console.log('start', e.rotation); },
+  onRotatemove(e) { console.log('move', e.rotation, e.deltaRotation); },
+  onRotateend(e) { console.log('end', e.rotation); },
+  onRotatecancel(e) { console.log('cancelled'); },
+});
+```
+
+### RotateEvent
+
+```ts
+interface RotateEvent {
+  type: 'rotatestart' | 'rotatemove' | 'rotateend' | 'rotatecancel';
+  rotation: number;       // cumulative rotation in degrees (positive = clockwise)
+  deltaRotation: number;  // change since last event
+  center: Point;          // midpoint between the two pointers {x, y}
+  isFirst: boolean;       // true only on rotatestart
+  isFinal: boolean;       // true only on rotateend/rotatecancel
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+Rotation = normalizeAngle(currentAngle - initialAngle). Positive = clockwise, negative = counter-clockwise.
+
+State machine: Idle → (2x pointerdown) → Possible → (rotation change > threshold) → Began → Changed → Ended | Cancelled.
+
+---
+
 ## Manager + Class API
 
 For composing multiple recognizers on one element, or for arbitration:
@@ -329,6 +372,10 @@ el.addEventListener('fngr:pinchstart', (e) => { /* PinchEvent */ });
 el.addEventListener('fngr:pinchmove', (e) => { /* PinchEvent */ });
 el.addEventListener('fngr:pinchend', (e) => { /* PinchEvent */ });
 el.addEventListener('fngr:pinchcancel', (e) => { /* PinchEvent */ });
+el.addEventListener('fngr:rotatestart', (e) => { /* RotateEvent */ });
+el.addEventListener('fngr:rotatemove', (e) => { /* RotateEvent */ });
+el.addEventListener('fngr:rotateend', (e) => { /* RotateEvent */ });
+el.addEventListener('fngr:rotatecancel', (e) => { /* RotateEvent */ });
 ```
 
 Events bubble and are cancelable.
