@@ -1,6 +1,6 @@
 {
   "name": "fngr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Modern gesture recognition library. PointerEvent-based, TypeScript-first, tree-shakeable, zero dependencies.",
   "type": "module",
   "license": "MIT",
