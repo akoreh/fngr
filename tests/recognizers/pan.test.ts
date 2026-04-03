@@ -1007,13 +1007,6 @@ describe('PanRecognizer', () => {
       expect(onPanstart).not.toHaveBeenCalled();
     });
 
-    it('matchesDirectionFilter returns false for unknown filter (kills: return true on line 143)', () => {
-      // Kills: return false → return true (line 143)
-      // The fallback return false is only reached if directionFilter is something other than all/horizontal/vertical
-      // Since TypeScript enforces DirectionFilter, this is an equivalent mutant — no reachable path
-      // We document it as equivalent
-    });
-
     it('direction none check: dx=0 and dy=0 returns none, not a cardinal direction', () => {
       // Kills: dx === 0 || dy === 0 (line 132) — would wrongly return 'none' for axis-aligned movement
       const onPanmove = vi.fn();
@@ -1028,19 +1021,6 @@ describe('PanRecognizer', () => {
       // With &&: dx=30 && dy=0 → false → goes to direction logic → 'right' ✓
       // With ||: dx=30 || dy=0 → true → returns 'none' ✗
       expect(onPanmove.mock.calls[0][0].direction).toBe('right');
-    });
-
-    it('dy > 0 boundary: dy=0 with horizontal movement is not down', () => {
-      // Kills: dy >= 0 ? 'down' : 'up' (line 136)
-      // When |dy| >= |dx| and dy=0, we're on the vertical branch
-      // dy=0 with > gives 'up' (0 > 0 is false). dy=0 with >= gives 'down' (0 >= 0 is true)
-      const onPanstart = vi.fn();
-      const mgr = new Manager(el);
-      mgr.add(new PanRecognizer({ onPanstart, threshold: 5 }));
-
-      // dx=0, dy=0: returns 'none' before reaching this branch. Can't test with delta (0,0).
-      // Need |dy| >= |dx| and dy=0 → impossible since if dy=0, |dy|=0 < any |dx|>0
-      // If dx=0 and dy=0 → 'none'. So dy >= 0 vs dy > 0 is unreachable. Equivalent mutant.
     });
 
     it('pointerup in Possible state transitions to Failed (not directly caught by panend)', () => {
