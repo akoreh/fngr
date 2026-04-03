@@ -32,6 +32,7 @@ Recognizers are tree-shakeable subpath exports — import only what you use:
 | Double Tap | `doubleTap()`       | `DoubleTapRecognizer`  | `fngr/doubletap`   |
 | Long Press | `longPress()`       | `LongPressRecognizer`  | `fngr/longpress`   |
 | Swipe      | `swipe()`           | `SwipeRecognizer`      | `fngr/swipe`       |
+| Pan        | `pan()`             | `PanRecognizer`        | `fngr/pan`         |
 
 Core: `Manager`, `BaseRecognizer`, types — import from `fngr`.
 
@@ -178,6 +179,48 @@ Direction is determined by dominant axis: `|dx| > |dy|` → horizontal, otherwis
 
 ---
 
+## Pan
+
+Recognizes a single-finger drag (pan) gesture. Continuous lifecycle: panstart → panmove (repeating) → panend | pancancel.
+
+```ts
+import { pan } from 'fngr/pan';
+
+const off = pan(el, (e) => console.log('pan started', e.deltaX));
+
+// Options form — restrict to horizontal, custom threshold
+const off = pan(el, {
+  threshold: 10,     // min distance in px before recognition (default 10)
+  direction: 'horizontal',  // 'all' | 'horizontal' | 'vertical' (default 'all')
+  onPanstart(e) { console.log('start', e.deltaX, e.deltaY); },
+  onPanmove(e) { console.log('move', e.deltaX, e.deltaY, e.direction); },
+  onPanend(e) { console.log('end', e.deltaX, e.deltaY); },
+  onPancancel(e) { console.log('cancelled'); },
+});
+```
+
+### PanEvent
+
+```ts
+interface PanEvent {
+  type: 'panstart' | 'panmove' | 'panend' | 'pancancel';
+  deltaX: number;     // displacement from pointer-down in px
+  deltaY: number;
+  velocityX: number;  // px/ms
+  velocityY: number;
+  direction: Direction;  // 'left' | 'right' | 'up' | 'down' | 'none'
+  isFirst: boolean;   // true only on panstart
+  isFinal: boolean;   // true only on panend/pancancel
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+---
+
 ## Manager + Class API
 
 For composing multiple recognizers on one element, or for arbitration:
@@ -236,6 +279,10 @@ el.addEventListener('fngr:doubletap', (e) => { /* DoubleTapEvent */ });
 el.addEventListener('fngr:longpress', (e) => { /* LongPressEvent */ });
 el.addEventListener('fngr:longpressup', (e) => { /* LongPressEvent */ });
 el.addEventListener('fngr:swipe', (e) => { /* SwipeEvent */ });
+el.addEventListener('fngr:panstart', (e) => { /* PanEvent */ });
+el.addEventListener('fngr:panmove', (e) => { /* PanEvent */ });
+el.addEventListener('fngr:panend', (e) => { /* PanEvent */ });
+el.addEventListener('fngr:pancancel', (e) => { /* PanEvent */ });
 ```
 
 Events bubble and are cancelable.

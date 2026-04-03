@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fngr — pan</title>
+    <link rel="icon" href="favicon.png" />
+    <link rel="stylesheet" href="shared/style.css" />
+    <style>
+      .layout {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      #scroll-container {
+        width: 280px;
+        height: 200px;
+        overflow-y: scroll;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        background: #32302f;
+      }
+      #scroll-inner {
+        height: 600px;
+        padding: 1rem;
+        color: #a89984;
+        font-size: 0.85rem;
+      }
+      #scroll-target {
+        width: 200px;
+        height: 100px;
+        margin-top: 1rem;
+        background: #3c3836;
+        border: 2px solid #504945;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a89984;
+        user-select: none;
+        touch-action: none;
+      }
+      #horizontal-target {
+        width: 280px;
+        height: 280px;
+        background: #3c3836;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: #a89984;
+        user-select: none;
+        touch-action: none;
+      }
+      #no-recognizer-zone {
+        width: 280px;
+        height: 100px;
+        background: #32302f;
+        border: 2px solid #504945;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #665c54;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>pan</h1>
+    <div class="layout">
+      <div id="target" class="target">drag here</div>
+
+      <div id="horizontal-target">horizontal only</div>
+
+      <div id="scroll-container">
+        <div id="scroll-inner">
+          Scroll this container. The pan target below should still work.
+          <div id="scroll-target">drag inside scroll</div>
+          <p style="margin-top: 200px">bottom of scroll</p>
+        </div>
+      </div>
+
+      <div id="no-recognizer-zone">no recognizer here</div>
+    </div>
+    <div id="log"></div>
+    <script type="module">
+      import { pan } from 'fngr/pan';
+      import { logEvent } from './shared/setup.ts';
+
+      // Main target — all directions
+      const target = document.getElementById('target');
+      pan(target, {
+        onPanstart(e) {
+          logEvent('panstart', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+            deltaY: Math.round(e.deltaY),
+            velocityX: e.velocityX.toFixed(3),
+            velocityY: e.velocityY.toFixed(3),
+            isFirst: e.isFirst,
+            isFinal: e.isFinal,
+          });
+          target.classList.add('active');
+        },
+        onPanmove(e) {
+          logEvent('panmove', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+            deltaY: Math.round(e.deltaY),
+            velocityX: e.velocityX.toFixed(3),
+            velocityY: e.velocityY.toFixed(3),
+          });
+        },
+        onPanend(e) {
+          logEvent('panend', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+            deltaY: Math.round(e.deltaY),
+            isFinal: e.isFinal,
+          });
+          target.classList.remove('active');
+        },
+        onPancancel(e) {
+          logEvent('pancancel', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+            deltaY: Math.round(e.deltaY),
+            isFinal: e.isFinal,
+          });
+          target.classList.remove('active');
+        },
+      });
+
+      // CustomEvent listeners
+      target.addEventListener('fngr:panstart', (e) => {
+        logEvent('fngr:panstart', { direction: e.detail.direction });
+      });
+      target.addEventListener('fngr:panmove', (e) => {
+        logEvent('fngr:panmove', { direction: e.detail.direction });
+      });
+      target.addEventListener('fngr:panend', (e) => {
+        logEvent('fngr:panend', { direction: e.detail.direction });
+      });
+      target.addEventListener('fngr:pancancel', (e) => {
+        logEvent('fngr:pancancel', { direction: e.detail.direction });
+      });
+
+      // Horizontal-only target
+      const hTarget = document.getElementById('horizontal-target');
+      pan(hTarget, {
+        direction: 'horizontal',
+        onPanstart(e) {
+          logEvent('h-panstart', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+          });
+          hTarget.classList.add('active');
+        },
+        onPanmove(e) {
+          logEvent('h-panmove', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+          });
+        },
+        onPanend(e) {
+          logEvent('h-panend', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+          });
+          hTarget.classList.remove('active');
+        },
+      });
+
+      // Scroll container target
+      const scrollTarget = document.getElementById('scroll-target');
+      pan(scrollTarget, {
+        onPanstart(e) {
+          logEvent('scroll-panstart', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+          });
+        },
+        onPanmove(e) {
+          logEvent('scroll-panmove', {
+            direction: e.direction,
+            deltaX: Math.round(e.deltaX),
+          });
+        },
+        onPanend(e) {
+          logEvent('scroll-panend', {
+            direction: e.direction,
+          });
+        },
+      });
+    </script>
+  </body>
+</html>
