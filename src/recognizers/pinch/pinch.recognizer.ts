@@ -171,10 +171,19 @@ function getOrCreateManager(el: Element): Manager {
 /**
  * Attach a pinch recognizer to an element.
  * @param el - Target element.
- * @param options - A {@link PinchOptions} object.
+ * @param optionsOrCallback - A {@link PinchOptions} object, or a callback shorthand
+ *   (invoked on `'pinchstart'` only; use the options form for other events).
  * @returns Cleanup function that removes the recognizer.
  */
-export function pinch(el: Element, options: PinchOptions): () => void {
+export function pinch(
+  el: Element,
+  optionsOrCallback: PinchOptions | ((e: PinchEvent) => void),
+): () => void {
+  const options: PinchOptions =
+    typeof optionsOrCallback === 'function'
+      ? { onPinchstart: optionsOrCallback }
+      : optionsOrCallback;
+
   const mgr = getOrCreateManager(el);
   const recognizer = new PinchRecognizer(options);
   mgr.add(recognizer);

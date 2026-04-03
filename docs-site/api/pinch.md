@@ -29,6 +29,21 @@ import { Manager } from 'fngr';
 
 The `pinch()` function attaches a pinch recognizer to an element and returns a cleanup function.
 
+### Callback form
+
+```ts
+import { pinch } from 'fngr/pinch';
+
+const el = document.getElementById('target')!;
+
+const cleanup = pinch(el, (e) => {
+  console.log('pinch started at scale', e.scale);
+});
+
+// Remove the recognizer when no longer needed
+cleanup();
+```
+
 ### Options object form
 
 ```ts
@@ -46,6 +61,9 @@ const cleanup = pinch(el, {
   },
   onPinchend(e) {
     console.log('end', e.scale);
+  },
+  onPinchcancel(e) {
+    console.log('cancelled', e.scale);
   },
 });
 

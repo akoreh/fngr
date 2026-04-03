@@ -666,6 +666,18 @@ describe('PinchRecognizer', () => {
       cleanup();
     });
 
+    it('pinch() accepts callback shorthand for pinchstart', () => {
+      const callback = vi.fn();
+      const cleanup = pinch(el, callback);
+
+      twoFingerDown(el, 100, 150, 200, 150);
+      twoFingerMove(el, 80, 150, 220, 150);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback.mock.calls[0][0].type).toBe('pinchstart');
+      cleanup();
+    });
+
     it('cleanup function stops recognition', () => {
       const onPinchstart = vi.fn();
       const cleanup = pinch(el, { onPinchstart });
