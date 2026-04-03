@@ -50,6 +50,10 @@
     "./pan": {
       "types": "./dist/recognizers/pan.d.ts",
       "import": "./dist/recognizers/pan.mjs"
+    },
+    "./pinch": {
+      "types": "./dist/pinch.d.ts",
+      "import": "./dist/pinch.mjs"
     }
   },
   "files": [
@@ -99,6 +103,11 @@
     {
       "name": "pan (tree-shaken)",
       "path": "dist/recognizers/pan.mjs",
+      "limit": "3 kB"
+    },
+    {
+      "name": "pinch (tree-shaken)",
+      "path": "dist/recognizers/pinch.mjs",
       "limit": "3 kB"
     },
     {
