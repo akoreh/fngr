@@ -15,8 +15,8 @@ const activeStates = new Set([
 /**
  * Coordinates recognition among multiple gesture recognizers.
  *
- * Enforces failure dependencies (e.g. tap waits for doubletap to fail),
- * simultaneous recognition, and priority-based conflict resolution.
+ * Enforces failure dependencies (e.g. tap waits for doubletap to fail)
+ * and simultaneous recognition rules.
  */
 export class Arbitrator {
   /**
@@ -61,7 +61,7 @@ export class Arbitrator {
    * other recognizers should be forced to Failed.
    *
    * @param recognized - The recognizer that just recognized.
-   * @param managed - All managed recognizer entries with their priorities.
+   * @param managed - All managed recognizer entries.
    * @returns Array of recognizers that should be forced to `Failed`.
    */
   resolveConflicts(

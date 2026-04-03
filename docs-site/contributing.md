@@ -46,7 +46,7 @@ BaseRecognizer.emit
 | `src/core/manager.ts`         | Attaches to a DOM element, routes raw pointer events to all registered recognizers                                   |
 | `src/core/base-recognizer.ts` | Abstract base class: state machine, `transition()`, `emit()`, failure-dependency and simultaneous-recognition wiring |
 | `src/core/arbitrator.ts`      | Decides whether a recognizer may recognize, and which competing recognizers to fail when one succeeds                |
-| `src/core/pointer-tracker.ts` | Tracks active pointers and their start positions across a gesture's lifetime                                         |
+| `src/core/pointer-tracker.ts` | Tracks active pointers, velocity, and multi-touch geometry (center, distance, angle)                                 |
 
 ---
 

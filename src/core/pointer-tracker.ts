@@ -85,7 +85,7 @@ export class PointerTracker {
    * Compute the velocity (px/ms) of a tracked pointer over the recent history window.
    *
    * @param pointerId - The `PointerEvent.pointerId` to look up.
-   * @returns Velocity vector `{ x, y }` in pixels per millisecond, or `{ 0, 0 }` if unavailable.
+   * @returns Velocity vector `{ x, y }` in pixels per millisecond, or `{ x: 0, y: 0 }` if unavailable.
    */
   getVelocity(pointerId: number): { x: number; y: number } {
     const tp = this.tracked.get(pointerId);
@@ -108,7 +108,7 @@ export class PointerTracker {
   /**
    * Compute the centroid of all currently tracked pointers.
    *
-   * @returns The center point, or `{ 0, 0 }` if no pointers are tracked.
+   * @returns The center point, or `{ x: 0, y: 0 }` if no pointers are tracked.
    */
   getCenter(): Point {
     if (this.tracked.size === 0) return { x: 0, y: 0 };

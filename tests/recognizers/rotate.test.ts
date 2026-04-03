@@ -241,6 +241,44 @@ describe('RotateRecognizer', () => {
 
       expect(onRotatestart.mock.calls[0][0].rotation).toBeCloseTo(90, 0);
     });
+
+    it('rotation past 180 degrees continues without wrapping', () => {
+      const onRotatestart = vi.fn();
+      const onRotatemove = vi.fn();
+      const mgr = new Manager(el);
+      mgr.add(new RotateRecognizer({ onRotatestart, onRotatemove }));
+
+      // Start: pointer2 directly right of pointer1 (angle = 0°)
+      twoFingerDown(el, 150, 150, 250, 150);
+
+      // Move to 90° CW: pointer2 directly below pointer1
+      fire(el, 'pointermove', {
+        pointerId: 2,
+        clientX: 150,
+        clientY: 250,
+        pointerType: 'touch',
+      });
+
+      // Move to 180° CW: pointer2 directly left of pointer1
+      fire(el, 'pointermove', {
+        pointerId: 2,
+        clientX: 50,
+        clientY: 150,
+        pointerType: 'touch',
+      });
+
+      // Move past 180° to ~270° CW: pointer2 directly above pointer1
+      fire(el, 'pointermove', {
+        pointerId: 2,
+        clientX: 150,
+        clientY: 50,
+        pointerType: 'touch',
+      });
+
+      // The cumulative rotation should be ~270°, NOT wrapped to ~-90°
+      const lastMove = onRotatemove.mock.calls[onRotatemove.mock.calls.length - 1][0];
+      expect(lastMove.rotation).toBeCloseTo(270, 0);
+    });
   });
 
   // =========================================================================

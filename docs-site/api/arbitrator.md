@@ -1,6 +1,6 @@
 # Arbitrator
 
-`Arbitrator` contains the conflict-resolution logic that determines whether a recognizer is allowed to fire and which competing recognizers should be failed when one wins. The `Manager` uses it internally — you only need to interact with this class directly when building a custom Manager integration.
+`Arbitrator` contains the conflict-resolution logic that determines whether a recognizer is allowed to fire and which competing recognizers should be failed when one wins. Use it when building a custom manager or coordination layer on top of recognizers.
 
 ```ts
 import { Arbitrator } from 'fngr';
@@ -81,10 +81,10 @@ Returns the list of recognizers that should be failed because `recognized` just 
 - recognizers in an inactive state (`Idle`, `Failed`, `Recognized`, `Ended`, `Cancelled`), and
 - recognizers that can run simultaneously with `recognized`.
 
-The returned array contains every remaining recognizer in an active state (`Possible`, `Began`, `Changed`). The Manager transitions each of them to `Failed`.
+The returned array contains every remaining recognizer in an active state (`Possible`, `Began`, `Changed`). The caller is responsible for transitioning each of them to `Failed`.
 
 ## See Also
 
 - [BaseRecognizer](/api/base-recognizer) — `requireFailureOf`, `allowSimultaneous`
-- [Manager](/api/manager) — uses `Arbitrator` to coordinate registered recognizers
+- [Manager](/api/manager) — routes pointer events to registered recognizers
 - [State Machine Guide](/guides/state-machine) — active vs terminal states

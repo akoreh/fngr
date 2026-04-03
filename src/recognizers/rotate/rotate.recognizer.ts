@@ -16,8 +16,9 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
   private tracker = new PointerTracker();
   private readonly threshold: number;
   private target: Element | null = null;
-  private initialAngle = 0;
-  private lastRotation = 0;
+  private lastAngle = 0;
+  private cumulativeRotation = 0;
+  private lastEmittedRotation = 0;
   private pointerIds: [number, number] | null = null;
 
   private readonly defaultThreshold = 0;
@@ -32,8 +33,9 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
 
     if (this.state === RecognizerState.Idle && this.tracker.count >= 2 && !this.pointerIds) {
       this.target = (e.currentTarget as Element) ?? (e.target as Element);
-      this.initialAngle = this.tracker.getAngle();
-      this.lastRotation = 0;
+      this.lastAngle = this.tracker.getAngle();
+      this.cumulativeRotation = 0;
+      this.lastEmittedRotation = 0;
       this.pointerIds = this.capturePointerIds();
       this.transition(RecognizerState.Possible);
     }
@@ -46,18 +48,20 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
     if (this.tracker.count < 2) return;
 
     const currentAngle = this.tracker.getAngle();
-    const rotation = this.normalizeAngle(currentAngle - this.initialAngle);
+    const delta = this.normalizeAngle(currentAngle - this.lastAngle);
+    this.lastAngle = currentAngle;
+    this.cumulativeRotation += delta;
 
     if (this.state === RecognizerState.Possible) {
-      if (Math.abs(rotation) > this.threshold) {
+      if (Math.abs(this.cumulativeRotation) > this.threshold) {
         this.transition(RecognizerState.Began);
-        this.emitRotate('rotatestart', e, rotation, true, false);
+        this.emitRotate('rotatestart', e, this.cumulativeRotation, true, false);
       }
     } else if (this.state === RecognizerState.Began || this.state === RecognizerState.Changed) {
       if (this.state === RecognizerState.Began) {
         this.transition(RecognizerState.Changed);
       }
-      this.emitRotate('rotatemove', e, rotation, false, false);
+      this.emitRotate('rotatemove', e, this.cumulativeRotation, false, false);
     }
   }
 
@@ -69,9 +73,10 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
 
     if (this.state === RecognizerState.Began || this.state === RecognizerState.Changed) {
       const currentAngle = this.tracker.getAngle();
-      const rotation = this.normalizeAngle(currentAngle - this.initialAngle);
+      const delta = this.normalizeAngle(currentAngle - this.lastAngle);
+      this.cumulativeRotation += delta;
       this.transition(RecognizerState.Ended);
-      this.emitRotate('rotateend', e, rotation, false, true);
+      this.emitRotate('rotateend', e, this.cumulativeRotation, false, true);
     } else if (this.state === RecognizerState.Possible) {
       this.transition(RecognizerState.Failed);
     }
@@ -88,9 +93,10 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
 
     if (this.state === RecognizerState.Began || this.state === RecognizerState.Changed) {
       const currentAngle = this.tracker.getAngle();
-      const rotation = this.normalizeAngle(currentAngle - this.initialAngle);
+      const delta = this.normalizeAngle(currentAngle - this.lastAngle);
+      this.cumulativeRotation += delta;
       this.transition(RecognizerState.Cancelled);
-      this.emitRotate('rotatecancel', e, rotation, false, true);
+      this.emitRotate('rotatecancel', e, this.cumulativeRotation, false, true);
     } else if (this.state === RecognizerState.Possible) {
       this.transition(RecognizerState.Failed);
     }
@@ -106,8 +112,8 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
     isFirst: boolean,
     isFinal: boolean,
   ): void {
-    const deltaRotation = rotation - this.lastRotation;
-    this.lastRotation = rotation;
+    const deltaRotation = rotation - this.lastEmittedRotation;
+    this.lastEmittedRotation = rotation;
 
     const center = this.tracker.getCenter();
 
@@ -162,8 +168,9 @@ export class RotateRecognizer extends BaseRecognizer<RotateEvent> {
     super.reset();
     this.tracker.reset();
     this.target = null;
-    this.initialAngle = 0;
-    this.lastRotation = 0;
+    this.lastAngle = 0;
+    this.cumulativeRotation = 0;
+    this.lastEmittedRotation = 0;
     this.pointerIds = null;
   }
 }
