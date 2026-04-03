@@ -1,0 +1,278 @@
+# fngr
+
+> Modern gesture recognition library for the web. PointerEvent-based, TypeScript-first, tree-shakeable, zero dependencies, framework-agnostic, SSR-safe.
+
+## Install
+
+```
+npm install fngr
+```
+
+## Quick Start
+
+Each gesture has a one-liner convenience function that returns a cleanup function:
+
+```ts
+import { tap } from 'fngr/tap';
+import { doubleTap } from 'fngr/doubletap';
+import { longPress } from 'fngr/longpress';
+import { swipe } from 'fngr/swipe';
+
+const off = tap(element, (e) => console.log('tapped', e.pointers[0].clientX));
+off(); // cleanup
+```
+
+## Imports
+
+Recognizers are tree-shakeable subpath exports — import only what you use:
+
+| Gesture    | Convenience function | Class                  | Import path        |
+|------------|---------------------|------------------------|--------------------|
+| Tap        | `tap()`             | `TapRecognizer`        | `fngr/tap`         |
+| Double Tap | `doubleTap()`       | `DoubleTapRecognizer`  | `fngr/doubletap`   |
+| Long Press | `longPress()`       | `LongPressRecognizer`  | `fngr/longpress`   |
+| Swipe      | `swipe()`           | `SwipeRecognizer`      | `fngr/swipe`       |
+
+Core: `Manager`, `BaseRecognizer`, types — import from `fngr`.
+
+---
+
+## Tap
+
+Recognizes a single-finger tap (pointer down then up).
+
+```ts
+import { tap } from 'fngr/tap';
+
+// Callback form
+const off = tap(el, (e) => console.log(e.type)); // 'tap'
+
+// Options form
+const off = tap(el, {
+  threshold: 10,  // max movement in px (default 10)
+  interval: 250,  // max duration in ms (default 250)
+  onTap(e) { console.log(e.pointers[0].clientX); },
+});
+
+off(); // remove recognizer
+```
+
+### TapEvent
+
+```ts
+interface TapEvent {
+  type: 'tap';
+  count: 1;
+  target: Element;
+  pointers: PointerInfo[];  // [{id, clientX, clientY, pageX, pageY}]
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+---
+
+## Double Tap
+
+Recognizes two consecutive taps within an interval.
+
+```ts
+import { doubleTap } from 'fngr/doubletap';
+
+const off = doubleTap(el, (e) => console.log('double-tapped'));
+
+// Options form
+const off = doubleTap(el, {
+  threshold: 10,  // max distance between taps in px (default 10)
+  interval: 300,  // max time between taps in ms (default 300)
+  onDoubletap(e) { console.log(e.count); }, // always 2
+});
+```
+
+### DoubleTapEvent
+
+```ts
+interface DoubleTapEvent {
+  type: 'doubletap';
+  count: 2;
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+---
+
+## Long Press
+
+Recognizes a press-and-hold gesture. Fires `longpress` when the hold duration is reached, and `longpressup` when the pointer lifts afterward.
+
+```ts
+import { longPress } from 'fngr/longpress';
+
+const off = longPress(el, (e) => console.log('held for', e.duration, 'ms'));
+
+// Options form — also listen for release
+const off = longPress(el, {
+  threshold: 10,  // max movement in px (default 10)
+  duration: 500,  // hold time in ms (default 500)
+  onLongpress(e) { console.log('longpress', e.duration); },
+  onLongpressup(e) { console.log('released', e.duration); },
+});
+```
+
+### LongPressEvent
+
+```ts
+interface LongPressEvent {
+  type: 'longpress' | 'longpressup';
+  duration: number;   // ms from pointer-down to event firing
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+---
+
+## Swipe
+
+Recognizes a single-finger directional flick. Checks distance, velocity, and optional direction filter on pointer-up.
+
+```ts
+import { swipe } from 'fngr/swipe';
+
+const off = swipe(el, (e) => console.log('swiped', e.direction));
+
+// Options form — restrict to horizontal, custom thresholds
+const off = swipe(el, {
+  threshold: 50,   // min distance in px (default 30)
+  velocity: 0.5,   // min speed in px/ms (default 0.3)
+  direction: 'horizontal',  // 'all' | 'horizontal' | 'vertical' (default 'all')
+  onSwipe(e) { console.log(e.direction, e.distance, e.velocity); },
+});
+```
+
+### SwipeEvent
+
+```ts
+interface SwipeEvent {
+  type: 'swipe';
+  direction: 'left' | 'right' | 'up' | 'down';
+  distance: number;   // straight-line distance in px
+  velocity: number;   // speed in px/ms
+  target: Element;
+  pointers: PointerInfo[];
+  timestamp: number;
+  srcEvent: PointerEvent;
+  preventDefault(): void;
+}
+```
+
+Direction is determined by dominant axis: `|dx| > |dy|` → horizontal, otherwise vertical.
+
+---
+
+## Manager + Class API
+
+For composing multiple recognizers on one element, or for arbitration:
+
+```ts
+import { Manager } from 'fngr';
+import { TapRecognizer } from 'fngr/tap';
+import { DoubleTapRecognizer } from 'fngr/doubletap';
+
+const manager = new Manager(el);
+
+const dt = new DoubleTapRecognizer({
+  interval: 300,
+  onDoubletap(e) { console.log('double-tap'); },
+});
+
+const t = new TapRecognizer({
+  onTap(e) { console.log('single tap'); },
+});
+
+// Tap waits for double-tap to fail before firing
+t.requireFailureOf(dt);
+
+// Higher priority gets pointer events first
+manager.add(dt, { priority: 10 });
+manager.add(t);
+
+// Cleanup
+manager.destroy();
+```
+
+### Manager methods
+
+- `new Manager(element)` — attaches pointer listeners, sets `touch-action: none`
+- `manager.add(recognizer, { priority? })` — register recognizer
+- `manager.remove(recognizer)` — unregister
+- `manager.destroy()` — remove all listeners, destroy recognizers, restore `touch-action`
+
+### Arbitration
+
+- `recognizer.requireFailureOf(other)` — defer recognition until `other` fails
+- `recognizer.allowSimultaneous(other)` — let both recognize at the same time
+
+---
+
+## CustomEvents
+
+Every gesture also dispatches a DOM `CustomEvent` on the target element, so you can use standard `addEventListener`:
+
+```ts
+el.addEventListener('fngr:tap', (e) => {
+  const detail = (e as CustomEvent).detail; // TapEvent
+});
+
+el.addEventListener('fngr:doubletap', (e) => { /* DoubleTapEvent */ });
+el.addEventListener('fngr:longpress', (e) => { /* LongPressEvent */ });
+el.addEventListener('fngr:longpressup', (e) => { /* LongPressEvent */ });
+el.addEventListener('fngr:swipe', (e) => { /* SwipeEvent */ });
+```
+
+Events bubble and are cancelable.
+
+---
+
+## PointerInfo
+
+All gesture events include a `pointers` array:
+
+```ts
+interface PointerInfo {
+  id: number;       // PointerEvent.pointerId
+  clientX: number;  // relative to viewport
+  clientY: number;
+  pageX: number;    // relative to document
+  pageY: number;
+}
+```
+
+---
+
+## State Machine
+
+Each recognizer is a state machine:
+
+Discrete gestures (tap, doubletap, longpress): `Idle → Possible → Recognized | Failed`
+Continuous gestures (pan, pinch, rotate): `Idle → Possible → Began → Changed → Ended | Cancelled`
+
+After terminal states (`Recognized`, `Failed`, `Ended`, `Cancelled`), recognizers auto-reset to `Idle`.
+
+---
+
+## Design Constraints
+
+- PointerEvent only — no Touch/MouseEvent fallbacks
+- ESM only — `.mjs` output with TypeScript declarations
+- SSR-safe — no top-level DOM access
+- Zero runtime dependencies
+- Tree-shakeable — each recognizer is an independent entry point

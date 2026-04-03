@@ -79,6 +79,11 @@ fngr/
 │       │   ├── longpress.recognizer.ts # LongPressRecognizer class + longPress() helper
 │       │   └── models/
 │       │       └── longpress.ts        # LongPressEvent, LongPressOptions
+│       ├── swipe/
+│       │   ├── index.ts                # Barrel: exports SwipeRecognizer, swipe, types
+│       │   ├── swipe.recognizer.ts     # SwipeRecognizer class + swipe() helper
+│       │   └── models/
+│       │       └── swipe.ts            # SwipeEvent, SwipeOptions
 │       └── models/                     # Type stubs for future recognizers
 │           └── …
 ├── tests/
@@ -91,19 +96,22 @@ fngr/
 │   ├── recognizers/                    # Unit tests for each recognizer
 │   │   ├── tap.test.ts
 │   │   ├── doubletap.test.ts
-│   │   └── longpress.test.ts
+│   │   ├── longpress.test.ts
+│   │   └── swipe.test.ts
 │   └── helpers/                        # Shared test utilities
 │       ├── pointer.ts                  # PointerEvent factory helpers
 │       └── setup.ts                    # vitest globalSetup (polyfills, etc.)
 ├── e2e/                                # Playwright end-to-end tests
 │   ├── tap.spec.ts
 │   ├── doubletap.spec.ts
-│   └── longpress.spec.ts
+│   ├── longpress.spec.ts
+│   └── swipe.spec.ts
 ├── examples/                           # Standalone HTML demos (served by Vite)
 │   ├── index.html
 │   ├── tap.html
 │   ├── doubletap.html
 │   ├── longpress.html
+│   ├── swipe.html
 │   └── shared/
 │       ├── setup.ts
 │       └── style.css
@@ -258,6 +266,16 @@ Document the options interface, event shape, and at least one usage example. Reg
 `docs-site/demos/{Name}Demo.vue`
 
 An interactive Vue component embedded in the docs page so readers can try the gesture live in the browser.
+
+### 10. Update llms.txt
+
+`docs-site/public/llms.txt`
+
+Add a section for the new recognizer following the pattern of existing entries: convenience API example, options with defaults, event interface, and any CustomEvent names. This file is served at `/llms.txt` so LLMs can ingest the full API in one request.
+
+### 11. Add JSDoc to public exports
+
+Add JSDoc comments to the recognizer class, convenience function, event interface, and options interface. These are what autocomplete LLMs (Copilot, Cursor) see when users work with fngr.
 
 ---
 

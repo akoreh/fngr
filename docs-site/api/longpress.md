@@ -2,6 +2,10 @@
 
 Recognizes a single-finger press-and-hold gesture. The pointer must stay within the movement threshold for the configured duration. Fires `longpress` when the hold duration is reached, and `longpressup` when the pointer lifts afterward.
 
+## Try It
+
+<LongPressDemo />
+
 ## Import
 
 **Convenience API** (recommended for most use cases):

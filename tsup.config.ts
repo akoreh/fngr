@@ -7,6 +7,7 @@ export default defineConfig({
     'recognizers/tap': 'src/recognizers/tap/index.ts',
     'recognizers/doubletap': 'src/recognizers/doubletap/index.ts',
     'recognizers/longpress': 'src/recognizers/longpress/index.ts',
+    'recognizers/swipe': 'src/recognizers/swipe/index.ts',
   },
   format: ['esm'],
   dts: true,

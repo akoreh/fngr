@@ -18,7 +18,9 @@
     "pan",
     "pinch",
     "rotate",
-    "hammerjs"
+    "hammerjs",
+    "llm-friendly",
+    "llms-txt"
   ],
   "exports": {
     ".": {
@@ -40,6 +42,10 @@
     "./longpress": {
       "types": "./dist/recognizers/longpress.d.ts",
       "import": "./dist/recognizers/longpress.mjs"
+    },
+    "./swipe": {
+      "types": "./dist/recognizers/swipe.d.ts",
+      "import": "./dist/recognizers/swipe.mjs"
     }
   },
   "files": [
@@ -79,6 +85,11 @@
     {
       "name": "longpress (tree-shaken)",
       "path": "dist/recognizers/longpress.mjs",
+      "limit": "3 kB"
+    },
+    {
+      "name": "swipe (tree-shaken)",
+      "path": "dist/recognizers/swipe.mjs",
       "limit": "3 kB"
     },
     {

@@ -4,6 +4,11 @@ import { Manager } from '../../core/manager';
 import { RecognizerState, type PointerInfo } from '../../core/models/types';
 import type { TapEvent, TapOptions } from './models/tap';
 
+/**
+ * Recognizes a single-finger tap. The pointer must lift within
+ * {@link TapOptions.interval | interval} ms without moving more than
+ * {@link TapOptions.threshold | threshold} px.
+ */
 export class TapRecognizer extends BaseRecognizer<TapEvent> {
   private tracker = new PointerTracker();
   private startTime = 0;
@@ -163,6 +168,12 @@ function getOrCreateManager(el: Element): Manager {
   return mgr;
 }
 
+/**
+ * Attach a tap recognizer to an element.
+ * @param el - Target element.
+ * @param optionsOrCallback - A {@link TapOptions} object, or a callback shorthand.
+ * @returns Cleanup function that removes the recognizer.
+ */
 export function tap(
   el: Element,
   optionsOrCallback: TapOptions | ((e: TapEvent) => void),
