@@ -417,7 +417,7 @@ test.describe('Pan E2E', () => {
 
   test.describe('no recognizer zones', () => {
     test('drag on element without recognizer does not fire events', async ({ page }) => {
-      const box = await page.locator('#no-tap-zone').boundingBox();
+      const box = await page.locator('#no-recognizer-zone').boundingBox();
 
       await performDrag(page, box!.x + 30, box!.y + 50, box!.x + 250, box!.y + 50);
 

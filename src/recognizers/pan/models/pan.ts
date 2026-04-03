@@ -26,8 +26,6 @@ export interface PanOptions {
   threshold?: number;
   /** Restrict recognized directions. Default `'all'`. */
   direction?: DirectionFilter;
-  /** Number of pointers required. Default `1`. */
-  pointers?: number;
   /** Callback fired when the pan begins (movement exceeds threshold). */
   onPanstart?: (e: PanEvent) => void;
   /** Callback fired on each pointer move after the pan has started. */

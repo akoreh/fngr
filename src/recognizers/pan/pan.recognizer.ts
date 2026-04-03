@@ -86,6 +86,11 @@ export class PanRecognizer extends BaseRecognizer<PanEvent> {
   }
 
   onPointerCancel(e: PointerEvent): void {
+    if (e.pointerId !== this.activePointerId) {
+      this.tracker.onPointerCancel(e);
+      return;
+    }
+
     if (this.state === RecognizerState.Began || this.state === RecognizerState.Changed) {
       const dx = e.clientX - this.startX;
       const dy = e.clientY - this.startY;

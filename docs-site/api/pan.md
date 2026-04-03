@@ -109,7 +109,6 @@ recognizer.destroy();
 | ------------- | ----------------------- | ------- | ---------------------------------------------------------------------- |
 | `threshold`   | `number`                | `10`    | Minimum distance in pixels before the pan starts.                      |
 | `direction`   | `DirectionFilter`       | `'all'` | Restrict recognized directions: `'all'`, `'horizontal'`, `'vertical'`. |
-| `pointers`    | `number`                | `1`     | Number of pointers required.                                           |
 | `onPanstart`  | `(e: PanEvent) => void` | —       | Callback invoked when the pan begins.                                  |
 | `onPanmove`   | `(e: PanEvent) => void` | —       | Callback invoked on each move during the pan.                          |
 | `onPanend`    | `(e: PanEvent) => void` | —       | Callback invoked when the pointer lifts.                               |
@@ -203,7 +202,7 @@ Direction filtering happens at recognition time (`panstart`). Once a pan is star
    │         └──────► Failed     ▼
    │                    │     Began ──── panstart
    │                    │        │
-   │                    │        │ pointermove
+   │                    │        │ pointermove ── panmove
    │                    │        ▼
    │                    │     Changed ── panmove (repeating)
    │                    │        │
@@ -223,7 +222,7 @@ Direction filtering happens at recognition time (`panstart`). Once a pan is star
 | Idle → Possible           | `pointerdown` received                                              |
 | Possible → Began          | `pointermove` with distance > threshold and direction passes filter |
 | Possible → Failed         | `pointerup`, `pointercancel`, or direction filter rejects           |
-| Began → Changed           | Next `pointermove` after panstart                                   |
+| Began → Changed           | Next `pointermove` after panstart (emits `panmove`)                 |
 | Changed → Changed         | Additional `pointermove` events                                     |
 | Began/Changed → Ended     | `pointerup` (emits `panend`)                                        |
 | Began/Changed → Cancelled | `pointercancel` (emits `pancancel`)                                 |

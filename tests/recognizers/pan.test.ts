@@ -623,6 +623,29 @@ describe('PanRecognizer', () => {
       expect(rec.state).not.toBe(RecognizerState.Idle);
     });
 
+    it('ignores pointercancel from a different pointer ID during active pan', () => {
+      const onPanstart = vi.fn();
+      const onPancancel = vi.fn();
+      const onPanmove = vi.fn();
+      const rec = new PanRecognizer({ onPanstart, onPancancel, onPanmove, threshold: 5 });
+      const mgr = new Manager(el);
+      mgr.add(rec);
+
+      // Start a pan with pointer 1
+      fire(el, 'pointerdown', { clientX: 50, clientY: 50, pointerId: 1 });
+      fire(el, 'pointermove', { clientX: 65, clientY: 50, pointerId: 1, timeStamp: 10 });
+      expect(onPanstart).toHaveBeenCalledTimes(1);
+
+      // Cancel from a different pointer — should be ignored
+      fire(el, 'pointercancel', { clientX: 0, clientY: 0, pointerId: 99 });
+      expect(onPancancel).not.toHaveBeenCalled();
+      expect(rec.state).not.toBe(RecognizerState.Idle);
+
+      // Continue moving the original pointer — panmove should still fire
+      fire(el, 'pointermove', { clientX: 80, clientY: 50, pointerId: 1, timeStamp: 20 });
+      expect(onPanmove).toHaveBeenCalledTimes(1);
+    });
+
     it('ignores second pointerdown while already tracking', () => {
       const onPanstart = vi.fn();
       const mgr = new Manager(el);
